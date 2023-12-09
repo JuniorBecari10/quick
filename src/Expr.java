@@ -23,7 +23,7 @@ public abstract class Expr {
     final Token name;
     final Expr value;
 
-    public AssignExpr(Position pos, Token name, Expr value) {
+    public AssignExpr(Position pos, Token name, Expr value) { // TODO! add isRef field
       super(pos);
 
       this.name = name;
