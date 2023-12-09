@@ -22,6 +22,7 @@ public class Lexer {
     keywords.put("let", TokenType.LetKw);
     keywords.put("loop", TokenType.LoopKw);
     keywords.put("while", TokenType.WhileKw);
+    keywords.put("fn", TokenType.FnKw);
     keywords.put("if", TokenType.IfKw);
     keywords.put("else", TokenType.ElseKw);
     keywords.put("return", TokenType.ReturnKw);

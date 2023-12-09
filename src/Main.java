@@ -10,7 +10,13 @@ public class Main {
     }
 
     try {
-      execute(Files.readString(new File(args[0]).toPath()));
+      execute("""
+        fn add(a, b, c) {
+          return a + b + c
+        }
+        
+        println(add(1, 2, 3))
+          """);
     }
     catch (Exception e) {
       System.out.println("File '" + args[0] + "' doesn't exist");
