@@ -54,6 +54,7 @@ public class Lexer {
       this.token();
     }
 
+    this.addToken(TokenType.NewLine);
     return this.tokens;
   }
 
@@ -175,8 +176,6 @@ public class Lexer {
   // ---
 
   private void identifier() {
-    this.advance();
-
     while (this.isIdentifier(this.peek(0)) || this.isNumber(this.peek(0)))
       this.advance();
     
@@ -221,9 +220,7 @@ public class Lexer {
   // ---
 
   private String lexeme() {
-    // trim is called in order to remove any trailing and leading whitespace
-    // TODO! maybe remove?
-    return new String(Arrays.copyOfRange(this.input, this.start, this.current)).trim();
+    return new String(Arrays.copyOfRange(this.input, this.start, this.current));
   }
 
   // ---

@@ -14,7 +14,10 @@ public class Parser {
     List<Stmt> statements = new ArrayList<>();
 
     while (!this.isAtEnd(0)) {
-      statements.add(this.statement());
+      Stmt stmt = this.statement();
+
+      if (stmt != null)
+        statements.add(stmt);
     }
 
     return statements;
@@ -24,6 +27,11 @@ public class Parser {
 
   private Stmt statement() throws Exception {
     try {
+      this.skipNewLines();
+
+      if (this.isAtEnd(0))
+        return null;
+
       Token t = this.peek(0);
 
       if (this.match(TokenType.BreakKw)) return this.breakStmt(t);
