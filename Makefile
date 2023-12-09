@@ -1,3 +1,5 @@
+ARGS = test
+
 all: compile run
 
 compile:
@@ -6,4 +8,4 @@ compile:
 
 run:
 	cd bin && \
-	java Main
+	java Main $(ARGS)

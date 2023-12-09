@@ -2,6 +2,16 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class Util {
+  public static class Break extends Exception {}
+  public static class Continue extends Exception {}
+  public static class Return extends Exception {
+    public Object value;
+
+    public Return(Object value) {
+      this.value = value;
+    }
+  }
+
   public static <T> Optional<T> supressException(Supplier<T> supplier) {
     try {
       T value = supplier.get();

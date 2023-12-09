@@ -268,7 +268,8 @@ public class Parser {
     if (this.match(TokenType.NilKw)) return new Expr.LiteralExpr(this.peek(-1).pos(), null);
 
     if (this.match(TokenType.Number, TokenType.String)) return new Expr.LiteralExpr(this.peek(-1).pos(), this.peek(-1).literal());
-    if (this.match(TokenType.Identifier)) return new Expr.VariableExpr(this.peek(-1).pos(), this.peek(-1));
+    if (this.match(TokenType.Identifier))
+      return new Expr.VariableExpr(this.peek(-1).pos(), this.peek(-1));
 
     if (this.match(TokenType.LParen)) {
       Position pos = this.peek(-1).pos();

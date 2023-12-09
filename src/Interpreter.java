@@ -56,14 +56,26 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   }
 
   public void interpret() throws Exception {
-    for (Stmt stmt : this.statements)
+    for (Stmt stmt : this.statements) {
       this.execute(stmt);
+    }
   }
 
   // ---
 
   private void execute(Stmt stmt) throws Exception {
-    stmt.accept(this);
+    try {
+      stmt.accept(this);
+    }
+    catch (Util.Break b) {
+      Util.printError("Cannot use 'break' outside a loop", stmt.pos);
+    }
+    catch (Util.Continue c) {
+      Util.printError("Cannot use 'continue' outside a loop", stmt.pos);
+    }
+    catch (Util.Return r) {
+      Util.printError("Cannot use 'return' outside a function", stmt.pos);
+    }
   }
 
   private void executeBlock(List<Stmt> statements, Environment environment) throws Exception {
@@ -136,14 +148,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Void visitBreakStmt(Stmt.BreakStmt stmt) throws Exception {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'visitBreakStmt'");
+    throw new Util.Break();
   }
 
   @Override
   public Void visitContinueStmt(Stmt.ContinueStmt stmt) throws Exception {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'visitContinueStmt'");
+    throw new Util.Continue();
   }
 
   @Override
@@ -172,20 +182,39 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Void visitLoopStmt(Stmt.LoopStmt stmt) throws Exception {
-    while (true)
-      this.execute(stmt.block);
+    while (true) {
+      try {
+        this.execute(stmt.block);
+      }
+      catch (Util.Break b) {
+        break;
+      }
+      catch (Util.Continue c) {
+        continue;
+      }
+    }
+
+    return null;
   }
 
   @Override
   public Void visitReturnStmt(Stmt.ReturnStmt stmt) throws Exception {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'visitReturnStmt'");
+    throw new Util.Return(this.evaluate(stmt.value));
   }
 
   @Override
   public Void visitWhileStmt(Stmt.WhileStmt stmt) throws Exception {
-    while (this.isTruthy(this.evaluate(stmt.condition)))
-      this.execute(stmt.block);
+    while (this.isTruthy(this.evaluate(stmt.condition))){
+      try {
+        this.execute(stmt.block);
+      }
+      catch (Util.Break b) {
+        break;
+      }
+      catch (Util.Continue c) {
+        continue;
+      }
+    }
 
     return null;
   }
@@ -216,10 +245,60 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       case BangEqual:
         return !this.isEqual(left, right);
 
+      // ---
 
+      case Ampersand:
+        return this.isTruthy(left) && this.isTruthy(right);
 
-      default:
-        break;
+      case VerticalBar:
+        return this.isTruthy(left) || this.isTruthy(right);
+
+      // ---
+
+      case Greater:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (double) left > (double) right;
+
+      case GreaterEqual:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (double) left >= (double) right;
+
+      case Less:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (double) left < (double) right;
+
+      case LessEqual:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (double) left <= (double) right;
+
+      // ---
+
+      case Plus:
+        if (left instanceof Double && right instanceof Double) {
+          return (double)left + (double)right;
+        }
+
+        if (left instanceof String && right instanceof String) {
+            return (String)left + (String)right;
+        }
+
+        Util.printError("Operand must be two numbers or two strings", expr.left.pos);
+      
+      case Minus:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (double) left - (double) right;
+
+      case Star:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (double) left * (double) right;
+
+      case Slash:
+        this.checkNumberOperands(expr.operator, left, right);
+
+        if ((double) right == 0.0)
+          Util.printError("Cannot divide by zero", expr.left.pos);
+
+        return (double) left <= (double) right;
     }
 
     Util.printError("Invalid binary operator: '" + expr.operator.lexeme() + "'", expr.left.pos);
