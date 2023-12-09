@@ -6,6 +6,7 @@ public abstract class Stmt {
     R visitBreakStmt(BreakStmt stmt) throws Exception;
     R visitContinueStmt(ContinueStmt stmt) throws Exception;
     R visitExprStmt(ExprStmt stmt) throws Exception;
+    R visitFnStmt(FnStmt stmt) throws Exception;
     R visitIfStmt(IfStmt stmt) throws Exception;
     R visitLetStmt(LetStmt stmt) throws Exception;
     R visitLoopStmt(LoopStmt stmt) throws Exception;
@@ -51,6 +52,24 @@ public abstract class Stmt {
 
     public <R> R accept(StmtVisitor<R> visitor) throws Exception {
       return visitor.visitContinueStmt(this);
+    }
+  }
+
+  public static class FnStmt extends Stmt {
+    final Token name;
+    final List<Token> params;
+    final List<Stmt> body;
+
+    public FnStmt(Position pos, Token name, List<Token> params, List<Stmt> body) {
+      super(pos);
+
+      this.name = name;
+      this.params = params;
+      this.body = body;
+    }
+
+    public <R> R accept(StmtVisitor<R> visitor) throws Exception {
+      return visitor.visitFnStmt(this);
     }
   }
 

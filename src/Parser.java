@@ -60,10 +60,22 @@ public class Parser {
   }
 
   private Stmt fnStmt(Token t) throws Exception {
-    
+    Token name = this.consume(TokenType.Identifier, "Expected function name");
+    this.consume(TokenType.LParen, "Expected '(' after function name");
 
-    this.consumeNewLine();
-    return null;
+    List<Token> parameters = new ArrayList<>();
+
+    if (!this.check(TokenType.RParen)) {
+      do {
+        parameters.add(this.consume(TokenType.Identifier, "Expected parameter name"));
+      }
+      while (this.match(TokenType.Comma));
+    }
+
+    this.consume(TokenType.RParen, "Expected ')' after parameter list");
+    List<Stmt> body = this.block();
+
+    return new Stmt.FnStmt(t.pos(), name, parameters, body);
   }
 
   // if condition { thenBranch } else/(if condition ...) { elseBranch } 
@@ -109,7 +121,10 @@ public class Parser {
   }
 
   private Stmt returnStmt(Token t) throws Exception {
-    Expr value = this.expr();
+    Expr value = null;
+
+    if (!this.check(TokenType.NewLine))
+      value = this.expr();
 
     this.consumeNewLine();
     return new Stmt.ReturnStmt(t.pos(), value);

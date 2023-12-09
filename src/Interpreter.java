@@ -78,7 +78,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     }
   }
 
-  private void executeBlock(List<Stmt> statements, Environment environment) throws Exception {
+  public void executeBlock(List<Stmt> statements, Environment environment) throws Exception {
     Environment previous = this.environment;
 
     try {
@@ -108,16 +108,19 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return a.equals(b);
   }
 
+  /*
   private void checkNumberOperand(Token operator, Object operand) throws Exception {
     if (operand instanceof Double) return;
     Util.printError("Operand must be a number", operator.pos());
   }
+  */
 
   private void checkNumberOperands(Token operator, Object left, Object right) throws Exception {
     if (left instanceof Double && right instanceof Double) return;
     Util.printError("Operands must be numbers", operator.pos());
   }
 
+  /*
   private Object lookUpVariable(Token name, Expr expr) throws Exception {
     return this.environment.get(name);
   }
@@ -136,7 +139,8 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     }
 
     return object.toString();
-}
+  }
+  */
 
   // ---
 
@@ -159,6 +163,14 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   @Override
   public Void visitExprStmt(Stmt.ExprStmt stmt) throws Exception {
     this.evaluate(stmt.expr);
+    return null;
+  }
+
+  @Override
+  public Void visitFnStmt(Stmt.FnStmt stmt) throws Exception {
+    Fn fn = new Fn(stmt);
+    this.environment.define(stmt.name.lexeme(), fn);
+
     return null;
   }
 
@@ -199,7 +211,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Void visitReturnStmt(Stmt.ReturnStmt stmt) throws Exception {
-    throw new Util.Return(this.evaluate(stmt.value));
+    Object value = null;
+
+    if (stmt.value != null)
+      value = this.evaluate(stmt.value);
+
+    throw new Util.Return(value);
   }
 
   @Override
@@ -299,10 +316,11 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
           Util.printError("Cannot divide by zero", expr.left.pos);
 
         return (double) left <= (double) right;
-    }
 
-    Util.printError("Invalid binary operator: '" + expr.operator.lexeme() + "'", expr.left.pos);
-    return null;
+      default:
+        Util.printError("Invalid binary operator: '" + expr.operator.lexeme() + "'", expr.left.pos);
+        return null;
+    }
   }
 
   @Override
