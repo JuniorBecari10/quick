@@ -10,7 +10,7 @@ public class Main {
     }
 
     try {
-      execute("*x = 10");
+      execute("let x = 10\nlet r = &x\nprintln(r)");
     }
     catch (Exception e) {
       System.out.println("File '" + args[0] + "' doesn't exist");
@@ -21,7 +21,6 @@ public class Main {
     try {
       List<Token> tokens = new Lexer(content).lex();
       List<Stmt> stmts = new Parser(tokens).parse();
-      //System.out.println(((Expr.AssignExpr) ((Stmt.ExprStmt) stmts.get(0)).expr).isRef);
       new Interpreter(stmts).interpret();
     }
     catch (Exception e) {

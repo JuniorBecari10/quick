@@ -356,7 +356,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         return -(double) right;
       
       case Ampersand:
-        return null;
+        return new Ref(((Expr.VariableExpr) expr.right).name.lexeme(), this.environment);
       
       case Star:
         return null;

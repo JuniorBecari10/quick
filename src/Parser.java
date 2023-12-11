@@ -234,8 +234,8 @@ public class Parser {
       else if (expr instanceof Expr.UnaryExpr) {
         Expr.UnaryExpr unary = (Expr.UnaryExpr) expr;
 
-        if (unary.operator.type() == TokenType.Star) {
-          Token name = ((Expr.VariableExpr) expr).name;
+        if (unary.operator.type() == TokenType.Star && unary.right instanceof Expr.VariableExpr) {
+          Token name = ((Expr.VariableExpr) unary.right).name;
           return new Expr.AssignExpr(expr.pos, name, right, true);
         }
       }
