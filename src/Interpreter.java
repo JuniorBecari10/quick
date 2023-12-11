@@ -24,7 +24,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public int arity() { return 1; }
 
       public Object call(Interpreter interpreter, List<Object> args) {
-        System.out.println(args.get(0));
+        System.out.println(Util.stringify(args.get(0)));
         return null;
       }
 
@@ -35,7 +35,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public int arity() { return 1; }
 
       public Object call(Interpreter interpreter, List<Object> args) {
-        System.out.print(args.get(0));
+        System.out.print(Util.stringify(args.get(0)));
         return null;
       }
 
@@ -46,7 +46,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public int arity() { return 1; }
 
       public Object call(Interpreter interpreter, List<Object> args) {
-        System.out.print(args.get(0));
+        System.out.print(Util.stringify(args.get(0)));
 
         return System.console().readLine();
       }
@@ -57,25 +57,25 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   public void interpret() throws Exception {
     for (Stmt stmt : this.statements) {
-      this.execute(stmt);
+      try {
+        this.execute(stmt);
+      }
+      catch (Util.Break b) {
+        Util.printError("Cannot use 'break' outside a loop", stmt.pos);
+      }
+      catch (Util.Continue c) {
+        Util.printError("Cannot use 'continue' outside a loop", stmt.pos);
+      }
+      catch (Util.Return r) {
+        Util.printError("Cannot use 'return' outside a function", stmt.pos);
+      }
     }
   }
 
   // ---
 
   private void execute(Stmt stmt) throws Exception {
-    try {
-      stmt.accept(this);
-    }
-    catch (Util.Break b) {
-      Util.printError("Cannot use 'break' outside a loop", stmt.pos);
-    }
-    catch (Util.Continue c) {
-      Util.printError("Cannot use 'continue' outside a loop", stmt.pos);
-    }
-    catch (Util.Return r) {
-      Util.printError("Cannot use 'return' outside a function", stmt.pos);
-    }
+    stmt.accept(this);
   }
 
   public void executeBlock(List<Stmt> statements, Environment environment) throws Exception {
@@ -108,12 +108,10 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return a.equals(b);
   }
 
-  /*
   private void checkNumberOperand(Token operator, Object operand) throws Exception {
     if (operand instanceof Double) return;
     Util.printError("Operand must be a number", operator.pos());
   }
-  */
 
   private void checkNumberOperands(Token operator, Object left, Object right) throws Exception {
     if (left instanceof Double && right instanceof Double) return;
@@ -168,7 +166,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Void visitFnStmt(Stmt.FnStmt stmt) throws Exception {
-    Fn fn = new Fn(stmt);
+    Function fn = new Function(stmt);
     this.environment.define(stmt.name.lexeme(), fn);
 
     return null;
@@ -291,15 +289,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       // ---
 
       case Plus:
-        if (left instanceof Double && right instanceof Double) {
-          return (double)left + (double)right;
-        }
-
-        if (left instanceof String && right instanceof String) {
-            return (String)left + (String)right;
-        }
-
-        Util.printError("Operand must be two numbers or two strings", expr.left.pos);
+        return Util.stringify(left) + Util.stringify(right);
       
       case Minus:
         this.checkNumberOperands(expr.operator, left, right);
@@ -355,8 +345,26 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Object visitUnaryExpr(Expr.UnaryExpr expr) throws Exception {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'visitUnaryExpr'");
+    Object right = this.evaluate(expr);
+
+    switch (expr.operator.type()) {
+      case Bang:
+        return !this.isTruthy(right);
+      
+      case Minus:
+        this.checkNumberOperand(expr.operator, right);
+        return -(double) right;
+      
+      case Ampersand:
+        return null;
+      
+      case Star:
+        return null;
+      
+      default:
+        Util.printError("Invalid unary operator: '" + expr.operator.lexeme() + "'", expr.operator.pos());
+        return null;
+    }
   }
 
   @Override

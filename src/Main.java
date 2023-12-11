@@ -10,13 +10,7 @@ public class Main {
     }
 
     try {
-      execute("""
-        fn add(a, b, c) {
-          return a + b + c
-        }
-        
-        println(add(1, 2, 3))
-          """);
+      execute("*x = 10");
     }
     catch (Exception e) {
       System.out.println("File '" + args[0] + "' doesn't exist");
@@ -27,6 +21,7 @@ public class Main {
     try {
       List<Token> tokens = new Lexer(content).lex();
       List<Stmt> stmts = new Parser(tokens).parse();
+      //System.out.println(((Expr.AssignExpr) ((Stmt.ExprStmt) stmts.get(0)).expr).isRef);
       new Interpreter(stmts).interpret();
     }
     catch (Exception e) {

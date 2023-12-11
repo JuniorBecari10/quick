@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -21,6 +22,28 @@ public class Util {
     catch (Exception e) {
       return Optional.empty();
     }
+  }
+
+  public static String stringify(Object obj) {
+    if (obj == null) return "nil";
+
+    if (obj instanceof Double) {
+      try {
+        return numToStr((double) obj);
+      }
+      catch (Exception e) {
+        return obj.toString();
+      }
+    }
+
+    return obj.toString();
+  }
+
+  public static String numToStr(double num) {
+    DecimalFormat f = new DecimalFormat("#.##");
+    f.setDecimalSeparatorAlwaysShown(false);
+
+    return f.format(num).replace(",", ".");
   }
 
   public static void printError(String message, Position pos) throws Exception {

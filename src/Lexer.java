@@ -78,7 +78,11 @@ public class Lexer {
         break;
 
       case '/':
-        this.addToken(TokenType.Slash);
+        if (this.match('/')) {
+          while (this.peek(0) != '\n') this.advance();
+        }
+        else
+          this.addToken(TokenType.Slash);
         break;
 
       case '(':

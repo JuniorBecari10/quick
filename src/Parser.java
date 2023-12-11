@@ -228,7 +228,16 @@ public class Parser {
 
       if (expr instanceof Expr.VariableExpr) {
         Token name = ((Expr.VariableExpr) expr).name;
-        return new Expr.AssignExpr(expr.pos, name, right);
+        return new Expr.AssignExpr(expr.pos, name, right, false);
+      }
+      
+      else if (expr instanceof Expr.UnaryExpr) {
+        Expr.UnaryExpr unary = (Expr.UnaryExpr) expr;
+
+        if (unary.operator.type() == TokenType.Star) {
+          Token name = ((Expr.VariableExpr) expr).name;
+          return new Expr.AssignExpr(expr.pos, name, right, true);
+        }
       }
       
       Util.printError("Invalid assignment target", expr.pos);
@@ -255,6 +264,9 @@ public class Parser {
       Token operator = this.peek(-1);
       Expr right = this.unary(precedence, operators); // always will be unary, since the precedence is the same
       
+      if ((operator.type() == TokenType.Ampersand || operator.type() == TokenType.Star) && !(right instanceof Expr.VariableExpr))
+        Util.printError("Can only reference or dereference identifiers", operator.pos());
+
       return new Expr.UnaryExpr(operator.pos(), operator, right);
     }
 

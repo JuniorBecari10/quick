@@ -22,12 +22,14 @@ public abstract class Expr {
   public static class AssignExpr extends Expr {
     final Token name;
     final Expr value;
+    final boolean isRef;
 
-    public AssignExpr(Position pos, Token name, Expr value) { // TODO! add isRef field
+    public AssignExpr(Position pos, Token name, Expr value, boolean isRef) {
       super(pos);
 
       this.name = name;
       this.value = value;
+      this.isRef = isRef;
     }
 
     public <R> R accept(ExprVisitor<R> visitor) throws Exception {

@@ -1,9 +1,9 @@
 import java.util.List;
 
-public class Fn implements Callable {
+public class Function implements Callable {
   private final Stmt.FnStmt declaration;
 
-  public Fn(Stmt.FnStmt declaration) {
+  public Function(Stmt.FnStmt declaration) {
     this.declaration = declaration;
   }
 
