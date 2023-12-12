@@ -166,7 +166,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Void visitFnStmt(Stmt.FnStmt stmt) throws Exception {
-    Function fn = new Function(stmt);
+    Function fn = new Function(stmt, this.environment);
     this.environment.define(stmt.name.lexeme(), fn);
 
     return null;
@@ -243,7 +243,11 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   @Override
   public Object visitAssignExpr(Expr.AssignExpr expr) throws Exception {
     Object value = this.evaluate(expr.value);
-    this.environment.assign(expr.name, value);
+
+    if (expr.isRef)
+      Util.printError("Dereference assign not supported yet", expr.name.pos());
+    else
+      this.environment.assign(expr.name, value);
 
     return value;
   }
@@ -289,8 +293,11 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       // ---
 
       case Plus:
-        return Util.stringify(left) + Util.stringify(right);
+        if (left instanceof Double && right instanceof Double)
+          return (double) left + (double) right;
       
+      return Util.stringify(left) + Util.stringify(right);
+
       case Minus:
         this.checkNumberOperands(expr.operator, left, right);
         return (double) left - (double) right;
@@ -345,7 +352,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Object visitUnaryExpr(Expr.UnaryExpr expr) throws Exception {
-    Object right = this.evaluate(expr);
+    Object right = this.evaluate(expr.right);
 
     switch (expr.operator.type()) {
       case Bang:
@@ -356,10 +363,15 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         return -(double) right;
       
       case Ampersand:
-        return new Ref(((Expr.VariableExpr) expr.right).name.lexeme(), this.environment);
+        return new Ref(((Expr.VariableExpr) expr.right).name, this.environment);
       
       case Star:
-        return null;
+        System.out.println(right.getClass().getName());
+        if (!(right instanceof Ref))
+          Util.printError("Can only dereference ref objects", expr.operator.pos());
+        
+        Ref r = (Ref) right;
+        return r.env.get(r.name);
       
       default:
         Util.printError("Invalid unary operator: '" + expr.operator.lexeme() + "'", expr.operator.pos());

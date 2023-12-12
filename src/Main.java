@@ -10,7 +10,18 @@ public class Main {
     }
 
     try {
-      execute("let x = 10\nlet r = &x\nprintln(r)");
+      execute("""
+        let a = "global"
+        {
+          fn show() {
+            println(a)
+          }
+
+          show()
+          let a = "block"
+          show()
+        }
+          """);
     }
     catch (Exception e) {
       System.out.println("File '" + args[0] + "' doesn't exist");
@@ -24,7 +35,6 @@ public class Main {
       new Interpreter(stmts).interpret();
     }
     catch (Exception e) {
-      e.printStackTrace();
       return;
     }
   }

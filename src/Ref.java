@@ -1,8 +1,8 @@
 public class Ref {
-  public final String name;
+  public final Token name;
   public final Environment env;
 
-  public Ref(String name, Environment env) {
+  public Ref(Token name, Environment env) {
     this.name = name;
     this.env = env;
   }

@@ -34,6 +34,7 @@ public class Parser {
 
       Token t = this.peek(0);
 
+      if (this.check(TokenType.LBrace)) return this.blockStmt(t);
       if (this.match(TokenType.BreakKw)) return this.breakStmt(t);
       if (this.match(TokenType.ContinueKw)) return this.continueStmt(t);
       if (this.match(TokenType.FnKw)) return fnStmt(t);
@@ -52,6 +53,13 @@ public class Parser {
   }
 
   // ---
+
+  private Stmt blockStmt(Token t) throws Exception {
+    Stmt.BlockStmt stmt = new Stmt.BlockStmt(t.pos(), this.block());
+
+    this.consumeNewLine();
+    return stmt;
+  }
 
   private Stmt breakStmt(Token t) throws Exception {
     Stmt.BreakStmt stmt = new Stmt.BreakStmt(t.pos());
