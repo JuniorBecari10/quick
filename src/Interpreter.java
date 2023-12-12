@@ -366,7 +366,6 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         return new Ref(((Expr.VariableExpr) expr.right).name, this.environment);
       
       case Star:
-        System.out.println(right.getClass().getName());
         if (!(right instanceof Ref))
           Util.printError("Can only dereference ref objects", expr.operator.pos());
         

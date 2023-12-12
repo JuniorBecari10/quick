@@ -104,6 +104,19 @@ public abstract class Stmt {
     }
   }
 
+  public static class InclStmt extends Stmt {
+    final Token mod;
+
+    public InclStmt(Position pos, Token mod) {
+      super(pos);
+      this.mod = mod;
+    }
+
+    public <R> R accept(StmtVisitor<R> visitor) throws Exception {
+      return null;
+    }
+  }
+
   public static class LetStmt extends Stmt {
     final Token name;
     final Expr value;

@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,13 @@ public class Parser {
 
     while (!this.isAtEnd(0)) {
       Stmt stmt = this.statement();
+
+      if (stmt instanceof Stmt.InclStmt) {
+        List<Stmt> add = this.parseInclude(stmt);
+        statements.addAll(add);
+
+        continue;
+      }
 
       if (stmt != null)
         statements.add(stmt);
@@ -39,6 +47,7 @@ public class Parser {
       if (this.match(TokenType.ContinueKw)) return this.continueStmt(t);
       if (this.match(TokenType.FnKw)) return fnStmt(t);
       if (this.match(TokenType.IfKw)) return ifStmt(t);
+      if (this.match(TokenType.InclKw)) return inclStmt(t);
       if (this.match(TokenType.LetKw)) return letStmt(t);
       if (this.match(TokenType.LoopKw)) return loopStmt(t);
       if (this.match(TokenType.ReturnKw)) return returnStmt(t);
@@ -114,6 +123,13 @@ public class Parser {
     }
 
     return new Stmt.IfStmt(t.pos(), condition, thenBranch, elseBranch);
+  }
+
+  private Stmt inclStmt(Token t) throws Exception {
+    Token mod = this.consume(TokenType.Identifier, "Expected module name");
+
+    this.consumeNewLine();
+    return new Stmt.InclStmt(t.pos(), mod);
   }
 
   // let name = value
@@ -380,6 +396,19 @@ public class Parser {
   }
 
   // ---
+
+  private List<Stmt> parseInclude(Stmt stmt) throws Exception {
+    Stmt.InclStmt incl = (Stmt.InclStmt) stmt;
+    File f = new File(incl.mod.lexeme() + Modules.FILE_EXT);
+
+    if (Modules.included.contains(incl.mod.lexeme()))
+      Util.printError("Module '" + incl.mod.lexeme() + "' already included", stmt.pos);
+
+    if (!f.exists())
+      Util.printError("Module '" + incl.mod.lexeme() + "' doesn't exist", incl.mod.pos());
+    
+    return Modules.readFile(f);
+  }
 
   private void synchronize() {
     this.advance();

@@ -1,4 +1,4 @@
-ARGS = test
+ARGS = test.qk
 
 all: compile run
 

@@ -44,6 +44,7 @@ public enum TokenType {
   FnKw,
   LoopKw,
   WhileKw,
+  InclKw,
   IfKw,
   ElseKw,
   ReturnKw,
