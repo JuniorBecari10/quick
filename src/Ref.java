@@ -7,6 +7,10 @@ public class Ref {
     this.env = env;
   }
 
+  public Object getReferenced() throws Exception {
+    return this.env.get(this.name);
+  }
+
   @Override
   public String toString() {
     return "&" + this.name;

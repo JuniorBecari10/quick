@@ -47,7 +47,6 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
       public Object call(Interpreter interpreter, List<Object> args) {
         System.out.print(Util.stringify(args.get(0)));
-
         return System.console().readLine();
       }
 
@@ -244,8 +243,15 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   public Object visitAssignExpr(Expr.AssignExpr expr) throws Exception {
     Object value = this.evaluate(expr.value);
 
-    if (expr.isRef)
-      Util.printError("Dereference assign not supported yet", expr.name.pos());
+    if (expr.isRef) {
+      Object v = this.environment.get(expr.name);
+
+      if (!(v instanceof Ref))
+        Util.printError("Can only dereference assign ref objects", expr.name.pos());
+      
+      Ref r = (Ref) v;
+      r.env.assign(r.name, value);
+    }
     else
       this.environment.assign(expr.name, value);
 
