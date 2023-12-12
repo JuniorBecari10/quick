@@ -39,8 +39,7 @@ let y = "Hello!"
 
 ### Pointers
 
-Quick has a feature that very few scripting languages have: pointers.
-
+Quick has a feature that very few scripting languages have: pointers. <br>
 Every argument is passed by value by default, and pointers allow them to be passed by reference.
 
 ```js
