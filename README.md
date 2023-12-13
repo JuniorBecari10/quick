@@ -33,6 +33,7 @@ let y = "Hello!"
 - `str`
 - `bool`
 - ~~`array`~~ not added yet
+- ~~`range`~~ not added yet
 - `ref` (pointers)
 - `fn` (functions)
 - `nil`
@@ -99,9 +100,8 @@ while i < 10 {
 
 ### Including Files
 
-Quick has the C-way to include files: just paste the other file's AST into the main one's.
-
-The importing is made with the `incl` keyword, followed by the file's name, without the extension.
+Quick has the C-way to include files: just paste the other file's AST into the main one's. <br>
+Importing is made with the `incl` keyword, followed by the file's name, without the extension.
 
 main.qk
 ```js

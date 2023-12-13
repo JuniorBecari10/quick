@@ -119,7 +119,10 @@ public class Lexer {
         break;
 
       case '.':
-        this.addToken(TokenType.Dot);
+        if (this.match('.'))
+          this.addToken(TokenType.DoubleDot);
+        else
+          this.addToken(TokenType.Dot);
         break;
 
       case '&':

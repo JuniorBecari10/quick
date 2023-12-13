@@ -127,6 +127,24 @@ public abstract class Expr {
     }
   }
 
+  public static class RangeExpr extends Expr {
+    final double start;
+    final double end;
+    final double step;
+
+    public RangeExpr(Position pos, double start, double end, double step) {
+      super(pos);
+
+      this.start = start;
+      this.end = end;
+      this.step = step;
+    }
+
+    public <R> R accept(ExprVisitor<R> visitor) throws Exception {
+      return visitor.visitRangeExpr(this);
+    }
+  }
+
   public static class TernaryExpr extends Expr {
     final Expr condition;
     final Expr thenBranch;

@@ -24,7 +24,9 @@ public enum TokenType {
 
   Colon,
   Comma,
+  
   Dot,
+  DoubleDot,
 
   Equal,
   DoubleEqual,
