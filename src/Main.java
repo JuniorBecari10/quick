@@ -7,6 +7,11 @@ public class Main {
       return;
     }
 
+    if (!args[0].endsWith(Modules.FILE_EXT)) {
+      System.out.println("File name should end with '" + Modules.FILE_EXT + "'");
+      return;
+    }
+
     try {
       List<Stmt> stmts = Modules.readFile(args[0]);
       Modules.execute(stmts);

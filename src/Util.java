@@ -47,7 +47,7 @@ public class Util {
   }
 
   public static void printError(String message, Position pos) throws Exception {
-    System.out.printf("Error in %d:%d | %s\n", pos.line + 1, pos.col + 1, message);
+    System.out.printf("Error in %s, %d:%d | %s\n", Modules.currentFileName, pos.line + 1, pos.col + 1, message);
     throw new Exception();
   }
 }

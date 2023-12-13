@@ -401,7 +401,7 @@ public class Parser {
     Stmt.InclStmt incl = (Stmt.InclStmt) stmt;
     File f = new File(incl.mod.lexeme() + Modules.FILE_EXT);
 
-    if (Modules.included.contains(incl.mod.lexeme()))
+    if (Modules.included.contains(incl.mod.lexeme() + Modules.FILE_EXT))
       Util.printError("Module '" + incl.mod.lexeme() + "' already included", stmt.pos);
 
     if (!f.exists())

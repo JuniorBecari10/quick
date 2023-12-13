@@ -8,15 +8,17 @@ public class Modules {
   public static final String FILE_EXT = ".qk";
   public static final List<String> included = new ArrayList<>();
 
+  public static String currentFileName;
+
   public static List<Stmt> readFile(String name) throws Exception {
     return readFile(new File(name));
   }
 
   public static List<Stmt> readFile(File file) throws Exception {
-    try {
-      String[] split = file.getName().split(".");
-      included.add(split.length > 0 ? split[0] : file.getName());
+    included.add(file.getName());
+    currentFileName = file.getName();
 
+    try {
       List<Token> tokens = new Lexer(Files.readString(file.toPath())).lex();
       List<Stmt> stmts = new Parser(tokens).parse();
       return stmts;
