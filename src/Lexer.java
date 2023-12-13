@@ -110,6 +110,10 @@ public class Lexer {
         this.addToken(TokenType.RBrace);
         break;
 
+      case ':':
+        this.addToken(TokenType.Colon);
+        break;
+
       case ',':
         this.addToken(TokenType.Comma);
         break;

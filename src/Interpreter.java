@@ -357,6 +357,14 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   }
 
   @Override
+  public Object visitTernaryExpr(Expr.TernaryExpr expr) throws Exception {
+    if (this.isTruthy(this.evaluate(expr.condition)))
+      return this.evaluate(expr.thenBranch);
+    
+    return this.evaluate(expr.elseBranch);
+  }
+
+  @Override
   public Object visitUnaryExpr(Expr.UnaryExpr expr) throws Exception {
     Object right = this.evaluate(expr.right);
 

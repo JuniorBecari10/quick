@@ -7,6 +7,7 @@ public abstract class Expr {
     R visitCallExpr(CallExpr expr) throws Exception;
     R visitGroupingExpr(GroupingExpr expr) throws Exception;
     R visitLiteralExpr(LiteralExpr expr) throws Exception;
+    R visitTernaryExpr(TernaryExpr expr) throws Exception;
     R visitUnaryExpr(UnaryExpr expr) throws Exception;
     R visitVariableExpr(VariableExpr expr) throws Exception;
   }
@@ -96,6 +97,24 @@ public abstract class Expr {
 
     public <R> R accept(ExprVisitor<R> visitor) throws Exception {
       return visitor.visitLiteralExpr(this);
+    }
+  }
+
+  public static class TernaryExpr extends Expr {
+    final Expr condition;
+    final Expr thenBranch;
+    final Expr elseBranch;
+
+    public TernaryExpr(Position pos, Expr condition, Expr thenBranch, Expr elseBranch) {
+      super(pos);
+
+      this.condition = condition;
+      this.thenBranch = thenBranch;
+      this.elseBranch = elseBranch;
+    }
+
+    public <R> R accept(ExprVisitor<R> visitor) throws Exception {
+      return visitor.visitTernaryExpr(this);
     }
   }
 

@@ -330,6 +330,23 @@ public class Parser {
     if (this.match(TokenType.Identifier))
       return new Expr.VariableExpr(this.peek(-1).pos(), this.peek(-1));
 
+    // if cond: thenBranch else: elseBranch
+    if (this.match(TokenType.IfKw)) {
+      Position pos = this.peek(-1).pos();
+      Expr condition = this.expr();
+
+      this.consume(TokenType.Colon, "Expected ':' after ternary condition");
+
+      Expr thenBranch = this.expr();
+
+      this.skipNewLines();
+      this.consume(TokenType.ElseKw, "Ternary operators must have an 'else' clause");
+      this.consume(TokenType.Colon, "Expected ':' after 'else'");
+
+      Expr elseBranch = this.expr();
+      return new Expr.TernaryExpr(pos, condition, thenBranch, elseBranch);
+    }
+
     if (this.match(TokenType.LParen)) {
       Position pos = this.peek(-1).pos();
       Expr expr = this.expr();
