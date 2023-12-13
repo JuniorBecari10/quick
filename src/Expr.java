@@ -2,12 +2,14 @@ import java.util.List;
 
 public abstract class Expr {
   public interface ExprVisitor<R> {
+    R visitArrayExpr(ArrayExpr expr) throws Exception;
     R visitAssignExpr(AssignExpr expr) throws Exception;
     R visitBinaryExpr(BinaryExpr expr) throws Exception;
     R visitCallExpr(CallExpr expr) throws Exception;
     R visitFnExpr(FnExpr expr) throws Exception;
     R visitGroupingExpr(GroupingExpr expr) throws Exception;
     R visitLiteralExpr(LiteralExpr expr) throws Exception;
+    R visitRangeExpr(RangeExpr expr) throws Exception;
     R visitTernaryExpr(TernaryExpr expr) throws Exception;
     R visitUnaryExpr(UnaryExpr expr) throws Exception;
     R visitVariableExpr(VariableExpr expr) throws Exception;
@@ -20,6 +22,20 @@ public abstract class Expr {
   }
 
   public abstract <R> R accept(ExprVisitor<R> visitor) throws Exception;
+
+  // TODO! add arrays and range in parser, and add Iterable interface
+  public static class ArrayExpr extends Expr {
+    final List<Expr> items;
+
+    public ArrayExpr(Position pos, List<Expr> items) {
+      super(pos);
+      this.items = items;
+    }
+
+    public <R> R accept(ExprVisitor<R> visitor) throws Exception {
+      return visitor.visitArrayExpr(this);
+    }
+  }
 
   public static class AssignExpr extends Expr {
     final Token name;

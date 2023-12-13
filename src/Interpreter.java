@@ -362,6 +362,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   }
 
   @Override
+  public Object visitRangeExpr(Expr.RangeExpr expr) throws Exception {
+    Util.printError("Not implemented", expr.pos);
+    return null;
+  }
+
+  @Override
   public Object visitTernaryExpr(Expr.TernaryExpr expr) throws Exception {
     if (this.isTruthy(this.evaluate(expr.condition)))
       return this.evaluate(expr.thenBranch);
