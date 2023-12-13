@@ -17,6 +17,10 @@ public class Environment {
     this.values.put(name, value);
   }
 
+  public boolean containsVariable(String name) {
+    return this.values.containsKey(name);
+  }
+
   public Object get(Token name) throws Exception {
     if (this.values.containsKey(name.lexeme())) {
       return this.values.get(name.lexeme());

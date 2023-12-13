@@ -184,6 +184,10 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   @Override
   public Void visitLetStmt(Stmt.LetStmt stmt) throws Exception {
     Object value = this.evaluate(stmt.value);
+
+    if (this.environment.containsVariable(stmt.name.lexeme()))
+      Util.printError("Cannot redeclare variable '" + stmt.name.lexeme() + "'", stmt.name.pos());
+
     this.environment.define(stmt.name.lexeme(), value);
 
     return null;
@@ -406,5 +410,11 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   @Override
   public Object visitVariableExpr(Expr.VariableExpr expr) throws Exception {
     return this.environment.get(expr.name);
+  }
+
+  @Override
+  public Object visitArrayExpr(Expr.ArrayExpr expr) throws Exception {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'visitArrayExpr'");
   }
 }
