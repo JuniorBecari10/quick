@@ -347,6 +347,11 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   }
 
   @Override
+  public Object visitFnExpr(Expr.FnExpr expr) throws Exception {
+    return new Function(expr, this.environment);
+  }
+
+  @Override
   public Object visitGroupingExpr(Expr.GroupingExpr expr) throws Exception {
     return this.evaluate(expr.expr);
   }

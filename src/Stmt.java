@@ -55,7 +55,7 @@ public abstract class Stmt {
     }
   }
 
-  public static class FnStmt extends Stmt {
+  public static class FnStmt extends Stmt implements FnDecl {
     final Token name;
     final List<Token> params;
     final List<Stmt> body;
@@ -70,6 +70,16 @@ public abstract class Stmt {
 
     public <R> R accept(StmtVisitor<R> visitor) throws Exception {
       return visitor.visitFnStmt(this);
+    }
+
+    @Override
+    public List<Token> params() {
+      return this.params;
+    }
+
+    @Override
+    public List<Stmt> body() {
+      return this.body;
     }
   }
 

@@ -322,17 +322,18 @@ public class Parser {
   }
 
   private Expr primary() throws Exception {
-    if (this.match(TokenType.FalseKw)) return new Expr.LiteralExpr(this.peek(-1).pos(), false);
-    if (this.match(TokenType.TrueKw)) return new Expr.LiteralExpr(this.peek(-1).pos(), true);
-    if (this.match(TokenType.NilKw)) return new Expr.LiteralExpr(this.peek(-1).pos(), null);
+    Position pos = this.peek(-1).pos();
 
-    if (this.match(TokenType.Number, TokenType.String)) return new Expr.LiteralExpr(this.peek(-1).pos(), this.peek(-1).literal());
+    if (this.match(TokenType.FalseKw)) return new Expr.LiteralExpr(pos, false);
+    if (this.match(TokenType.TrueKw)) return new Expr.LiteralExpr(pos, true);
+    if (this.match(TokenType.NilKw)) return new Expr.LiteralExpr(pos, null);
+
+    if (this.match(TokenType.Number, TokenType.String)) return new Expr.LiteralExpr(pos, this.peek(-1).literal());
     if (this.match(TokenType.Identifier))
-      return new Expr.VariableExpr(this.peek(-1).pos(), this.peek(-1));
+      return new Expr.VariableExpr(pos, this.peek(-1));
 
     // if cond: thenBranch else: elseBranch
     if (this.match(TokenType.IfKw)) {
-      Position pos = this.peek(-1).pos();
       Expr condition = this.expr();
 
       this.consume(TokenType.Colon, "Expected ':' after ternary condition");
@@ -347,8 +348,25 @@ public class Parser {
       return new Expr.TernaryExpr(pos, condition, thenBranch, elseBranch);
     }
 
+    if (this.match(TokenType.FnKw)) {
+      this.consume(TokenType.LParen, "Expected '(' after 'fn'");
+
+      List<Token> parameters = new ArrayList<>();
+
+      if (!this.check(TokenType.RParen)) {
+        do {
+          parameters.add(this.consume(TokenType.Identifier, "Expected parameter name"));
+        }
+        while (this.match(TokenType.Comma));
+      }
+
+      this.consume(TokenType.RParen, "Expected ')' after parameter list");
+      List<Stmt> body = this.block();
+
+      return new Expr.FnExpr(pos, parameters, body);
+    }
+
     if (this.match(TokenType.LParen)) {
-      Position pos = this.peek(-1).pos();
       Expr expr = this.expr();
       
       this.consume(TokenType.RParen, "Expected ')' after expression");

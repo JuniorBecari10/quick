@@ -5,6 +5,7 @@ public abstract class Expr {
     R visitAssignExpr(AssignExpr expr) throws Exception;
     R visitBinaryExpr(BinaryExpr expr) throws Exception;
     R visitCallExpr(CallExpr expr) throws Exception;
+    R visitFnExpr(FnExpr expr) throws Exception;
     R visitGroupingExpr(GroupingExpr expr) throws Exception;
     R visitLiteralExpr(LiteralExpr expr) throws Exception;
     R visitTernaryExpr(TernaryExpr expr) throws Exception;
@@ -69,6 +70,32 @@ public abstract class Expr {
 
     public <R> R accept(ExprVisitor<R> visitor) throws Exception {
       return visitor.visitCallExpr(this);
+    }
+  }
+
+  public static class FnExpr extends Expr implements FnDecl {
+    final List<Token> params;
+    final List<Stmt> body;
+
+    public FnExpr(Position pos, List<Token> params, List<Stmt> body) {
+      super(pos);
+
+      this.params = params;
+      this.body = body;
+    }
+
+    public <R> R accept(ExprVisitor<R> visitor) throws Exception {
+      return visitor.visitFnExpr(this);
+    }
+
+    @Override
+    public List<Token> params() {
+      return this.params;
+    }
+
+    @Override
+    public List<Stmt> body() {
+      return this.body;
     }
   }
 
