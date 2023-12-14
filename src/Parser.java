@@ -98,7 +98,18 @@ public class Parser {
     }
 
     this.consume(TokenType.RParen, "Expected ')' after parameter list");
-    List<Stmt> body = this.block();
+    
+    List<Stmt> body;
+
+      if (this.match(TokenType.Colon)) {
+        this.skipNewLines();
+        Expr expr = this.expr();
+
+        body = new ArrayList<>();
+        body.add(new Stmt.ReturnStmt(expr.pos, expr));
+      }
+      else
+        body = this.block();
 
     return new Stmt.FnStmt(t.pos(), name, parameters, body);
   }
@@ -361,7 +372,18 @@ public class Parser {
       }
 
       this.consume(TokenType.RParen, "Expected ')' after parameter list");
-      List<Stmt> body = this.block();
+
+      List<Stmt> body;
+
+      if (this.match(TokenType.Colon)) {
+        this.skipNewLines();
+        Expr expr = this.expr();
+
+        body = new ArrayList<>();
+        body.add(new Stmt.ReturnStmt(expr.pos, expr));
+      }
+      else
+        body = this.block();
 
       return new Expr.FnExpr(pos, parameters, body);
     }
