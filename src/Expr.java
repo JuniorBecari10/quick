@@ -4,10 +4,12 @@ public abstract class Expr {
   public interface ExprVisitor<R> {
     R visitArrayExpr(ArrayExpr expr) throws Exception;
     R visitAssignExpr(AssignExpr expr) throws Exception;
+    R visitAssignIndexExpr(AssignIndexExpr expr) throws Exception;
     R visitBinaryExpr(BinaryExpr expr) throws Exception;
     R visitCallExpr(CallExpr expr) throws Exception;
     R visitFnExpr(FnExpr expr) throws Exception;
     R visitGroupingExpr(GroupingExpr expr) throws Exception;
+    R visitIndexExpr(IndexExpr expr) throws Exception;
     R visitLiteralExpr(LiteralExpr expr) throws Exception;
     R visitRangeExpr(RangeExpr expr) throws Exception;
     R visitTernaryExpr(TernaryExpr expr) throws Exception;
@@ -52,6 +54,24 @@ public abstract class Expr {
 
     public <R> R accept(ExprVisitor<R> visitor) throws Exception {
       return visitor.visitAssignExpr(this);
+    }
+  }
+
+  public static class AssignIndexExpr extends Expr {
+    final Token name;
+    final Expr index;
+    final Expr value;
+
+    public AssignIndexExpr(Position pos, Token name, Expr index, Expr value) {
+      super(pos);
+
+      this.name = name;
+      this.index = index;
+      this.value = value;
+    }
+
+    public <R> R accept(ExprVisitor<R> visitor) throws Exception {
+      return visitor.visitAssignIndexExpr(this);
     }
   }
 
@@ -126,6 +146,22 @@ public abstract class Expr {
 
     public <R> R accept(ExprVisitor<R> visitor) throws Exception {
       return visitor.visitGroupingExpr(this);
+    }
+  }
+
+  public static class IndexExpr extends Expr {
+    final Expr array;
+    final Expr index;
+
+    public IndexExpr(Position pos, Expr expr, Expr index) {
+      super(pos);
+
+      this.array = expr;
+      this.index = index;
+    }
+
+    public <R> R accept(ExprVisitor<R> visitor) throws Exception {
+      return visitor.visitIndexExpr(this);
     }
   }
 

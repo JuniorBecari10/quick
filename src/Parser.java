@@ -231,8 +231,9 @@ public class Parser {
    * 5 - Add, Sub
    * 6 - Mul, Div
    * 7 - Unary
-   * 8 - Call
-   * 9 - Primary
+   * 8 - Index
+   * 9 - Call
+   * 10 - Primary
    * 
    * - Highest
    */
@@ -246,10 +247,10 @@ public class Parser {
       case 5: return this.binary(precedence, TokenType.Plus, TokenType.Minus);
       case 6: return this.binary(precedence, TokenType.Star, TokenType.Slash);
       case 7: return this.unary(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
-      case 8: return this.call(precedence);
-      case 9: return this.primary();
+      case 8: return this.index(precedence);
+      case 9: return this.call(precedence);
+      case 10: return this.primary();
     }
-    // TODO! add index
 
     Util.printError("Invalid precedence: '" + precedence + "'", null);
     return null;
@@ -272,6 +273,15 @@ public class Parser {
         if (unary.operator.type() == TokenType.Star && unary.right instanceof Expr.VariableExpr) {
           Token name = ((Expr.VariableExpr) unary.right).name;
           return new Expr.AssignExpr(expr.pos, name, right, true);
+        }
+      }
+
+      else if (expr instanceof Expr.IndexExpr) {
+        Expr.IndexExpr index = (Expr.IndexExpr) expr;
+
+        if (index.array instanceof Expr.VariableExpr) {
+          Token name = ((Expr.VariableExpr) index.array).name;
+          return new Expr.AssignIndexExpr(expr.pos, name, index.index, right);
         }
       }
       
@@ -332,6 +342,19 @@ public class Parser {
     return expr;
   }
 
+  private Expr index(int precedence) throws Exception {
+    Expr expr = this.parseExpr(precedence + 1);
+
+    if (this.match(TokenType.LBracket)) {
+      Expr index = this.expr();
+
+      this.consume(TokenType.RBracket, "Expected ']' after index");
+      expr = new Expr.IndexExpr(expr.pos, expr, index);
+    }
+
+    return expr;
+  }
+
   private Expr primary() throws Exception {
     Position pos = this.peek(-1).pos();
 
@@ -386,6 +409,20 @@ public class Parser {
         body = this.block();
 
       return new Expr.FnExpr(pos, parameters, body);
+    }
+
+    if (this.match(TokenType.LBracket)) {
+      List<Expr> items = new ArrayList<>();
+
+      if (!this.check(TokenType.RParen)) {
+        do {
+          items.add(this.expr());
+        }
+        while (this.match(TokenType.Comma));
+      }
+
+      this.consume(TokenType.RParen, "Expected ']' after array elements");
+      return new Expr.ArrayExpr(pos, items);
     }
 
     if (this.match(TokenType.LParen)) {

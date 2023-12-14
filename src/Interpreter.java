@@ -244,6 +244,16 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   }
 
   @Override
+  public Object visitArrayExpr(Expr.ArrayExpr expr) throws Exception {
+    List<Object> array = new ArrayList<>();
+
+    for (Expr e : expr.items)
+      array.add(this.evaluate(e));
+
+    return new Array(array);
+  }
+
+  @Override
   public Object visitAssignExpr(Expr.AssignExpr expr) throws Exception {
     Object value = this.evaluate(expr.value);
 
@@ -260,6 +270,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       this.environment.assign(expr.name, value);
 
     return value;
+  }
+
+  @Override
+  public Object visitAssignIndexExpr(Expr.AssignIndexExpr expr) throws Exception {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'visitAssignIndexExpr'");
   }
 
   @Override
@@ -361,6 +377,14 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   }
 
   @Override
+  public Object visitIndexExpr(Expr.IndexExpr expr) throws Exception {
+    Object array = this.environment.get(null); // TODO!
+    
+    if (!(array instanceof Array))
+      Util.printError("Can only index arrays", expr.pos);
+  }
+
+  @Override
   public Object visitLiteralExpr(Expr.LiteralExpr expr) throws Exception {
     return expr.value;
   }
@@ -410,11 +434,5 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   @Override
   public Object visitVariableExpr(Expr.VariableExpr expr) throws Exception {
     return this.environment.get(expr.name);
-  }
-
-  @Override
-  public Object visitArrayExpr(Expr.ArrayExpr expr) throws Exception {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'visitArrayExpr'");
   }
 }
