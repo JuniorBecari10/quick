@@ -414,14 +414,14 @@ public class Parser {
     if (this.match(TokenType.LBracket)) {
       List<Expr> items = new ArrayList<>();
 
-      if (!this.check(TokenType.RParen)) {
+      if (!this.check(TokenType.RBracket)) {
         do {
           items.add(this.expr());
         }
         while (this.match(TokenType.Comma));
       }
 
-      this.consume(TokenType.RParen, "Expected ']' after array elements");
+      this.consume(TokenType.RBracket, "Expected ']' after array elements");
       return new Expr.ArrayExpr(pos, items);
     }
 

@@ -17,6 +17,10 @@ public class Environment {
     this.values.put(name, value);
   }
 
+  public void defineArray(String name, int index, Object value) {
+    
+  }
+
   public boolean containsVariable(String name) {
     return this.values.containsKey(name);
   }

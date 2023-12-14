@@ -274,8 +274,18 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Object visitAssignIndexExpr(Expr.AssignIndexExpr expr) throws Exception {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'visitAssignIndexExpr'");
+    Object value = this.evaluate(expr.value);
+    Object index = this.evaluate(expr.index);
+
+    if (!(index instanceof Double))
+      Util.printError("Arrays can only be indexed by integers", expr.pos);
+    
+    Double ind = (Double) index;
+    
+    if (ind.intValue() != ind)
+      Util.printError("Arrays can only be indexed by integers", expr.pos);
+    
+    // TODO! assign using the method
   }
 
   @Override
@@ -378,11 +388,27 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Object visitIndexExpr(Expr.IndexExpr expr) throws Exception {
-    Object array = this.environment.get(null); // TODO!
-    
+    Object array = this.evaluate(expr.array);
+    Object index = this.evaluate(expr.index);
+
     if (!(array instanceof Array))
       Util.printError("Can only index arrays", expr.pos);
-  }
+    
+    if (!(index instanceof Double))
+      Util.printError("Arrays can only be indexed by integers", expr.pos);
+
+    Double ind = (Double) index;
+
+    if (ind.intValue() != ind)
+      Util.printError("Arrays can only be indexed by integers", expr.pos);
+
+    Array a = (Array) array;
+
+    if (ind < 0 || ind >= a.array.size())
+      Util.printError("Index out of bounds: '" + ind + "' is outside the bounds for an array of length " + a.array.size(), expr.pos);
+    
+    return a.array.get(ind.intValue());
+   }
 
   @Override
   public Object visitLiteralExpr(Expr.LiteralExpr expr) throws Exception {
