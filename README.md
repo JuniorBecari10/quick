@@ -97,7 +97,7 @@ Quick has two keywords for loops: `loop` and `while`. <br>
 Both loops can be manipulated by the `break` and `continue` keywords.
 
 #### `loop`
-`loop` is used to create an infinite loop and to iterate over arrays.
+`loop` is used to create an infinite loop and to iterate over arrays and ranges.
 
 ```rs
 loop {
@@ -109,6 +109,11 @@ loop {
 let array = [1, 2, 3, 4]
 
 loop i in array {
+  println(i)
+}
+```
+```rs
+loop i in 1:10 {
   println(i)
 }
 ```

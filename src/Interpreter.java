@@ -379,6 +379,20 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
         return (double) left <= (double) right;
 
+      // ---
+
+      case InKw:
+        if (!(right instanceof Array))
+          Util.printError("Right side of the 'in' expression must be an array", expr.left.pos);
+        
+        Array a = (Array) right;
+
+        for (Object o : a.array)
+          if (left.equals(o))
+            return true;
+
+        return false;
+
       default:
         Util.printError("Invalid binary operator: '" + expr.operator.lexeme() + "'", expr.left.pos);
         return null;

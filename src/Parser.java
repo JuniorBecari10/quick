@@ -56,6 +56,7 @@ public class Parser {
       return exprStmt(t);
     }
     catch (Exception e) {
+      e.printStackTrace();
       this.synchronize();
       return null;
     }
@@ -237,13 +238,14 @@ public class Parser {
    * 2 - And
    * 3 - Equality
    * 4 - Comparison
-   * 5 - Range
-   * 6 - Add, Sub
-   * 7 - Mul, Div
-   * 8 - Unary
-   * 9 - Index
-   * 10 - Call
-   * 11 - Primary
+   * 5 - In
+   * 6 - Range
+   * 7 - Add, Sub
+   * 8 - Mul, Div
+   * 9 - Unary
+   * 10 - Index
+   * 11 - Call
+   * 12 - Primary
    * 
    * - Highest
    */
@@ -254,13 +256,14 @@ public class Parser {
       case 2: return this.binary(precedence, TokenType.Ampersand);
       case 3: return this.binary(precedence, TokenType.DoubleEqual, TokenType.BangEqual);
       case 4: return this.binary(precedence, TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual);
-      case 5: return this.range(precedence);
-      case 6: return this.binary(precedence, TokenType.Plus, TokenType.Minus);
-      case 7: return this.binary(precedence, TokenType.Star, TokenType.Slash);
-      case 8: return this.unary(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
-      case 9: return this.index(precedence);
-      case 10: return this.call(precedence);
-      case 11: return this.primary();
+      case 5: return this.binary(precedence, TokenType.InKw);
+      case 6: return this.range(precedence);
+      case 7: return this.binary(precedence, TokenType.Plus, TokenType.Minus);
+      case 8: return this.binary(precedence, TokenType.Star, TokenType.Slash);
+      case 9: return this.unary(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
+      case 10: return this.index(precedence);
+      case 11: return this.call(precedence);
+      case 12: return this.primary();
     }
 
     Util.printError("Invalid precedence: '" + precedence + "'", null);
