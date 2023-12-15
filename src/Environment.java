@@ -17,10 +17,6 @@ public class Environment {
     this.values.put(name, value);
   }
 
-  public void defineArray(String name, int index, Object value) {
-    
-  }
-
   public boolean containsVariable(String name) {
     return this.values.containsKey(name);
   }
@@ -40,6 +36,28 @@ public class Environment {
   public void assign(Token name, Object value) throws Exception {
     if (this.values.containsKey(name.lexeme())) {
       values.put(name.lexeme(), value);
+      return;
+    }
+
+    if (this.enclosing != null) {
+      this.enclosing.assign(name, value);
+      return;
+    }
+
+    Util.printError("Variable '" + name.lexeme() + "' doesn't exist", name.pos());
+  }
+
+  public void assignArray(Token name, int index, Object value) throws Exception {
+    if (this.values.containsKey(name.lexeme())) {
+      Object obj = this.get(name);
+
+      if (!(obj instanceof Array))
+        Util.printError("Can only index arrays", name.pos());
+      
+      Array a = (Array) obj;
+      a.array.set(index, value);
+
+      values.put(name.lexeme(), a);
       return;
     }
 

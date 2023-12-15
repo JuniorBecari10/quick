@@ -285,7 +285,8 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     if (ind.intValue() != ind)
       Util.printError("Arrays can only be indexed by integers", expr.pos);
     
-    // TODO! assign using the method
+    this.environment.assignArray(expr.name, ind.intValue(), value);
+    return value;
   }
 
   @Override
