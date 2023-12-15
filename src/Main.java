@@ -14,7 +14,6 @@ public class Main {
 
     try {
       List<Stmt> stmts = Modules.readFile(args[0]);
-      System.out.println(((Stmt.ExprStmt) stmts.get(0)).expr.getClass().getName());
       Modules.execute(stmts);
     }
     catch (Exception e) {

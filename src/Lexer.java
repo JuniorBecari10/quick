@@ -53,7 +53,11 @@ public class Lexer {
       this.start = this.current;
       this.startPos = new Position(this.currentPos);
 
-      this.token();
+      try {
+        this.token();
+      } catch (Exception e) {
+        continue;
+      }
     }
 
     this.addToken(TokenType.NewLine);
@@ -180,8 +184,16 @@ public class Lexer {
         if (this.isIdentifier(c)) this.identifier();
         else if (this.isNumber(c)) this.number();
 
-        else
-          Util.printError("Unknown token: '" + c + "'", this.currentPos);
+        else {
+          this.retrocede();
+          
+          try {
+            Util.printError("Unknown token: '" + c + "'", this.currentPos);
+          }
+          finally {
+            this.advance();
+          }
+        }
         break;
     }
   }
@@ -202,9 +214,16 @@ public class Lexer {
   }
 
   private void number() throws Exception {
-    while (this.isNumber(this.peek(0)) || this.peek(0) == '.')
+    while (this.isNumber(this.peek(0)))
       this.advance();
     
+    if (this.peek(0) == '.' && isNumber(this.peek(1))) {
+      this.advance();
+
+      while (this.isNumber(this.peek(0)))
+        this.advance();
+    }
+
     Optional<Double> opt = Util.supressException(() -> Double.parseDouble(this.lexeme()));
     
     if (!opt.isPresent())
@@ -256,6 +275,11 @@ public class Lexer {
     this.currentPos.col++;
 
     return this.peek(-1);
+  }
+
+  private void retrocede() {
+    this.current--;
+    this.currentPos.col--;
   }
 
   private boolean match(char c) {

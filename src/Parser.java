@@ -56,7 +56,6 @@ public class Parser {
       return exprStmt(t);
     }
     catch (Exception e) {
-      e.printStackTrace();
       this.synchronize();
       return null;
     }
@@ -335,11 +334,11 @@ public class Parser {
   private Expr range(int precedence) throws Exception {
     Expr expr = this.parseExpr(precedence + 1);
 
-    if (this.match(TokenType.Colon)) {
+    if (this.match(TokenType.DoubleDot)) {
       Expr right = this.parseExpr(precedence + 1);
 
       Expr step = null;
-      if (this.match(TokenType.Comma))
+      if (this.match(TokenType.Colon))
         step = this.parseExpr(precedence + 1);
       
       expr = new Expr.RangeExpr(expr.pos, expr, right, step);
