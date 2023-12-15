@@ -1,23 +1,24 @@
 # Quick
 
-An interpreted scripting language that was made in a few days.
+An interpreted, dynamic-typed scripting language that was made in a few days.
 
 ## About
 
-This is a personal project just to practice the creation of programming and (still) shouldn't be used in production, due to the bugs that still exist.
+This is a personal project made just to practice the creation of a programming language and (still) shouldn't be used in production, due to the bugs that still exist.
 
 The project was made in Java, following the proposed model inside the [Crafting Interpreters](https://craftinginterpreters.com/) book, with some modifications.
 
 ## How to Use
 
-The language is very simple and straightforward as the book's one, so it's not very hard to learn.
+The language is very simple and straightforward as the book's one, so it's not very hard to learn. <br>
+Here's the basic syntax:
 
 ### Hello World
 
 ```js
 println("Hello, World!")
 ```
-`print` can be used as well; this function doesn't insert a newline character (`\n`) at the end, like `println` does.
+`print` can be used as well, but this function doesn't insert a newline character (`\n`) at the end, like `println` does.
 
 ### Declaring Variables
 
@@ -32,8 +33,8 @@ let y = "Hello!"
 - `num` (supports both integers and floats)
 - `str`
 - `bool`
-- ~~`array`~~ not added yet
-- ~~`range`~~ not added yet
+- `array`
+- `range`
 - `ref` (pointers)
 - `fn` (functions)
 - `nil`
@@ -64,13 +65,31 @@ if x == 10 -> println("x is 10!")
 else -> println("x is not 10")
 ```
 
+#### Ternary Operator
+
+Statements don't produce values, but expressions do. `if` is a keyword that represents both a statement and an expression. <br>
+So you can do this:
+
+```rs
+let x = 10
+let y = if x == 10: "hello" else: "bye"
+```
+
+You can also divide the expression in two lines if you prefer:
+
+```rs
+let x = 10
+let y = if x == 10: "hello"
+        else: "bye"
+```
+
 #### Code Blocks
 
 Quick has an unique and clean way to express a code block that contains only one statement, using the arrow (`->`) operator.
 
 This operator is handy when you want to put only one statement inside a code block, but without the verbosity of the curly braces.
 
-But remind that everywhere the syntax requires a code block, both ways can be used.
+Remind that everywhere the syntax requires a code block, both ways can be used.
 
 ### Loops
 
@@ -78,11 +97,19 @@ Quick has two keywords for loops: `loop` and `while`. <br>
 Both loops can be manipulated by the `break` and `continue` keywords.
 
 #### `loop`
-`loop` is used to create an infinite loop, and, in the future, will be used to iterate over arrays.
+`loop` is used to create an infinite loop and to iterate over arrays.
 
 ```rs
 loop {
   println("infinite!")
+}
+```
+
+```rs
+let array = [1, 2, 3, 4]
+
+loop i in array {
+  println(i)
 }
 ```
 
@@ -96,6 +123,31 @@ while i < 10 {
   println(i)
   i = i + 1
 }
+```
+
+### Functions
+
+A function in Quick can be defined by both a statement (that automatically binds it to a name), and by an expression.
+
+```rs
+fn add(x, y) {
+  return x + y
+}
+```
+
+```rs
+let add = fn(x, y) {
+  return x + y
+}
+```
+
+If your function has only a return statement, you can simplify the writing by using this syntax, which creates a return statement automatically:
+
+```rs
+fn add(x, y): x + y
+```
+```rs
+let add = fn(x, y): x + y
 ```
 
 ### Including Files

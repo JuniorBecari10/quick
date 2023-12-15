@@ -418,8 +418,22 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Object visitRangeExpr(Expr.RangeExpr expr) throws Exception {
-    Util.printError("Not implemented", expr.pos);
-    return null;
+    Object start = this.evaluate(expr.start);
+    Object end = this.evaluate(expr.end);
+    Object step = expr.step == null
+                    ? 1.0
+                    : this.evaluate(expr.step);
+
+    if (!(start instanceof Double))
+      Util.printError("The start of the range must be a number", expr.pos);
+    
+    if (!(end instanceof Double))
+      Util.printError("The end of the range must be a number", expr.pos);
+    
+    if (!(step instanceof Double))
+      Util.printError("The step of the range must be a number: " + Util.stringify(step), expr.pos);
+    
+    return new Range((Double) start, (Double) end, (Double) step);
   }
 
   @Override

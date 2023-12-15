@@ -180,11 +180,11 @@ public abstract class Expr {
   }
 
   public static class RangeExpr extends Expr {
-    final double start;
-    final double end;
-    final double step;
+    final Expr start;
+    final Expr end;
+    final Expr step;
 
-    public RangeExpr(Position pos, double start, double end, double step) {
+    public RangeExpr(Position pos, Expr start, Expr end, Expr step) {
       super(pos);
 
       this.start = start;

@@ -228,12 +228,13 @@ public class Parser {
    * 2 - And
    * 3 - Equality
    * 4 - Comparison
-   * 5 - Add, Sub
-   * 6 - Mul, Div
-   * 7 - Unary
-   * 8 - Index
-   * 9 - Call
-   * 10 - Primary
+   * 5 - Range
+   * 6 - Add, Sub
+   * 7 - Mul, Div
+   * 8 - Unary
+   * 9 - Index
+   * 10 - Call
+   * 11 - Primary
    * 
    * - Highest
    */
@@ -244,12 +245,13 @@ public class Parser {
       case 2: return this.binary(precedence, TokenType.Ampersand);
       case 3: return this.binary(precedence, TokenType.DoubleEqual, TokenType.BangEqual);
       case 4: return this.binary(precedence, TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual);
-      case 5: return this.binary(precedence, TokenType.Plus, TokenType.Minus);
-      case 6: return this.binary(precedence, TokenType.Star, TokenType.Slash);
-      case 7: return this.unary(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
-      case 8: return this.index(precedence);
-      case 9: return this.call(precedence);
-      case 10: return this.primary();
+      case 5: return this.range(precedence);
+      case 6: return this.binary(precedence, TokenType.Plus, TokenType.Minus);
+      case 7: return this.binary(precedence, TokenType.Star, TokenType.Slash);
+      case 8: return this.unary(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
+      case 9: return this.index(precedence);
+      case 10: return this.call(precedence);
+      case 11: return this.primary();
     }
 
     Util.printError("Invalid precedence: '" + precedence + "'", null);
@@ -316,6 +318,22 @@ public class Parser {
     }
 
     return this.parseExpr(precedence + 1);
+  }
+
+  private Expr range(int precedence) throws Exception {
+    Expr expr = this.parseExpr(precedence + 1);
+
+    if (this.match(TokenType.Colon)) {
+      Expr right = this.parseExpr(precedence + 1);
+
+      Expr step = null;
+      if (this.match(TokenType.Comma))
+        step = this.parseExpr(precedence + 1);
+      
+      expr = new Expr.RangeExpr(expr.pos, expr, right, step);
+    }
+
+    return expr;
   }
 
   private Expr call(int precedence) throws Exception {
