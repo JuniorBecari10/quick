@@ -145,10 +145,15 @@ public abstract class Stmt {
 
   public static class LoopStmt extends Stmt {
     final BlockStmt block;
+    final Token variable;
+    final Expr iterable;
 
-    public LoopStmt(Position pos, BlockStmt block) {
+    public LoopStmt(Position pos, Token variable, Expr iterable, BlockStmt block) {
       super(pos);
+
       this.block = block;
+      this.variable = variable;
+      this.iterable = iterable;
     }
 
     public <R> R accept(StmtVisitor<R> visitor) throws Exception {

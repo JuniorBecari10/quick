@@ -158,9 +158,18 @@ public class Parser {
   }
 
   private Stmt loopStmt(Token t) throws Exception {
-    Stmt.BlockStmt block = new Stmt.BlockStmt(this.peek(0).pos(), this.block());
+    Token variable = null;
+    Expr iterable = null;
 
-    return new Stmt.LoopStmt(t.pos(), block);
+    if (!this.check(TokenType.LBrace)) {
+      variable = this.consume(TokenType.Identifier, "Iterator variable name must be an identifier");
+
+      this.consume(TokenType.InKw, "Expected 'in' keyword after iterator variable");
+      iterable = this.expr();
+    }
+
+    Stmt.BlockStmt block = new Stmt.BlockStmt(this.peek(0).pos(), this.block());
+    return new Stmt.LoopStmt(t.pos(), variable, iterable, block);
   }
 
   private Stmt returnStmt(Token t) throws Exception {

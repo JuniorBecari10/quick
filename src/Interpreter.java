@@ -195,8 +195,35 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Void visitLoopStmt(Stmt.LoopStmt stmt) throws Exception {
-    while (true) {
+    if (stmt.variable == null || stmt.iterable == null) {
+      while (true) {
+        try {
+          this.execute(stmt.block);
+        }
+        catch (Util.Break b) {
+          break;
+        }
+        catch (Util.Continue c) {
+          continue;
+        }
+      }
+
+      return null;
+    }
+
+    Object iterable = this.evaluate(stmt.iterable);
+
+    if (!(iterable instanceof Iterable))
+      Util.printError("Can only iterate over iterable objects", stmt.pos);
+
+    Iterable it = (Iterable) iterable;
+
+    Environment previous = this.environment;
+    this.environment = new Environment(previous);
+
+    while (it.hasNext()) {
       try {
+        this.environment.define(stmt.variable.lexeme(), it.next());
         this.execute(stmt.block);
       }
       catch (Util.Break b) {
@@ -207,6 +234,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       }
     }
 
+    this.environment = previous;
     return null;
   }
 

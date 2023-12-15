@@ -1,7 +1,8 @@
 import java.util.List;
 
-public class Array {
+public class Array implements Iterable {
   public List<Object> array;
+  private int counter = 0;
 
   public Array(List<Object> array) {
     this.array = array;
@@ -24,5 +25,15 @@ public class Array {
     b.append("]");
 
     return b.toString();
+  }
+
+  @Override
+  public boolean hasNext() {
+    return this.counter < this.array.size();
+  }
+
+  @Override
+  public Object next() {
+    return this.array.get(this.counter++);
   }
 }
