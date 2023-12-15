@@ -241,11 +241,11 @@ public class Parser {
    * 6 - Range
    * 7 - Add, Sub
    * 8 - Mul, Div
-   * 9 - Postfix
-   * 10 - Prefix
-   * 11 - Index
-   * 12 - Call
-   * 13 - Primary
+   * X - ~~Postfix~~ Not added yet
+   * 9 - Prefix (Unary)
+   * 10 - Index
+   * 11 - Call
+   * 12 - Primary
    * 
    * - Highest
    */

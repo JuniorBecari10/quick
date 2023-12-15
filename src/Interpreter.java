@@ -7,8 +7,11 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   
   private List<Stmt> statements;
 
+  // TODO! any runtime error that happens in any file, the error message will show always the main one
   public Interpreter(List<Stmt> statements) {
     this.statements = statements;
+
+    // -- Prelude --
 
     globals.define("clock", new Callable() {
       public int arity() { return 0; }
@@ -48,6 +51,175 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public Object call(Interpreter interpreter, List<Object> args) {
         System.out.print(Util.stringify(args.get(0)));
         return System.console().readLine();
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("panic", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        System.out.println("Panic: " + Util.stringify(args.get(0)));
+        throw new Exception();
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    // -- Types --
+
+    globals.define("isInt", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (!(args.get(0) instanceof Double)) return false;
+
+        Double d = (Double) args.get(0);
+        return d.intValue() == d;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isNum", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof Double) return true;
+        return false;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isStr", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof String) return true;
+        return false;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isBool", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof Boolean) return true;
+        return false;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isArray", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof Array) return true;
+        return false;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isRange", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof Range) return true;
+        return false;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isRef", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof Ref) return true;
+        return false;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isFn", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof Function) return true;
+        return false;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    // -- Math --
+
+    globals.define("ceil", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+          return Math.ceil(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("floor", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+          return Math.floor(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("min", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double && args.get(1) instanceof Double) {
+          Double a = (Double) args.get(0);
+          Double b = (Double) args.get(1);
+
+          return Math.min(a, b);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("max", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double && args.get(1) instanceof Double) {
+          Double a = (Double) args.get(0);
+          Double b = (Double) args.get(1);
+          
+          return Math.max(a, b);
+        }
+
+        return null;
       }
 
       public String toString() { return "<native fn>"; }
@@ -107,12 +279,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return a.equals(b);
   }
 
-  private void checkNumberOperand(Token operator, Object operand) throws Exception {
+  private static void checkNumberOperand(Token operator, Object operand) throws Exception {
     if (operand instanceof Double) return;
     Util.printError("Operand must be a number", operator.pos());
   }
 
-  private void checkNumberOperands(Token operator, Object left, Object right) throws Exception {
+  private static void checkNumberOperands(Token operator, Object left, Object right) throws Exception {
     if (left instanceof Double && right instanceof Double) return;
     Util.printError("Operands must be numbers", operator.pos());
   }
@@ -271,53 +443,6 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return expr.accept(this);
   }
 
-  private Object plus(Object left, Object right) {
-    if (left instanceof Double && right instanceof Double)
-      return (double) left + (double) right;
-      
-    return Util.stringify(left) + Util.stringify(right);
-  }
-
-  private Object minus(Object left, Object right) {
-    return (double) left - (double) right;
-  }
-
-  private Object times(Object left, Object right) {
-    return (double) left * (double) right;
-  }
-
-  private Object divide(Object left, Object right) {
-    return (double) left <= (double) right;
-  }
-
-  private Object performOperation(Object left, Object right, Token operator) {
-    switch (operator.type()) {
-      case PlusEqual:
-        return this.plus(left, right);
-
-      case MinusEqual:
-        this.checkNumberOperands(expr.operator, left, right);
-        return this.minus(left, right);
-
-      case StarEqual:
-        this.checkNumberOperands(expr.operator, left, right);
-        return this.times(left, right);
-
-      case SlashEqual:
-        this.checkNumberOperands(expr.operator, left, right);
-
-        if ((double) right == 0.0)
-          Util.printError("Cannot divide by zero", expr.left.pos);
-
-        return this.divide(left, right);
-      
-      default:
-        Util.printError("Invalid assignment operator: '" + operator.lexeme() + "'", operator.pos());
-    }
-  }
-
-  // ---
-
   @Override
   public Object visitArrayExpr(Expr.ArrayExpr expr) throws Exception {
     List<Object> array = new ArrayList<>();
@@ -339,7 +464,6 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         Util.printError("Can only dereference assign ref objects", expr.name.pos());
       
       Ref r = (Ref) v;
-      value = this.performOperation(value, expr.operator);
       r.env.assign(r.name, value);
     }
     else
@@ -388,41 +512,44 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       // ---
 
       case Greater:
-        this.checkNumberOperands(expr.operator, left, right);
+        checkNumberOperands(expr.operator, left, right);
         return (double) left > (double) right;
 
       case GreaterEqual:
-        this.checkNumberOperands(expr.operator, left, right);
+        checkNumberOperands(expr.operator, left, right);
         return (double) left >= (double) right;
 
       case Less:
-        this.checkNumberOperands(expr.operator, left, right);
+        checkNumberOperands(expr.operator, left, right);
         return (double) left < (double) right;
 
       case LessEqual:
-        this.checkNumberOperands(expr.operator, left, right);
+        checkNumberOperands(expr.operator, left, right);
         return (double) left <= (double) right;
 
       // ---
 
       case Plus:
-        return this.plus(left, right);
+        if (left instanceof Double && right instanceof Double)
+          return (double) left + (double) right;
+      
+      return Util.stringify(left) + Util.stringify(right);
 
       case Minus:
-        this.checkNumberOperands(expr.operator, left, right);
-        return this.minus(left, right);
+        checkNumberOperands(expr.operator, left, right);
+        return (double) left - (double) right;
 
       case Star:
-        this.checkNumberOperands(expr.operator, left, right);
-        return this.times(left, right);
+        checkNumberOperands(expr.operator, left, right);
+        return (double) left * (double) right;
 
       case Slash:
-        this.checkNumberOperands(expr.operator, left, right);
+        checkNumberOperands(expr.operator, left, right);
 
         if ((double) right == 0.0)
           Util.printError("Cannot divide by zero", expr.left.pos);
 
-        return this.divide(left, right);
+        return (double) left <= (double) right;
 
       // ---
 
@@ -540,7 +667,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         return !this.isTruthy(right);
       
       case Minus:
-        this.checkNumberOperand(expr.operator, right);
+        checkNumberOperand(expr.operator, right);
         return -(double) right;
       
       case Ampersand:
