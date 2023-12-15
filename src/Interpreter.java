@@ -271,6 +271,53 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return expr.accept(this);
   }
 
+  private Object plus(Object left, Object right) {
+    if (left instanceof Double && right instanceof Double)
+      return (double) left + (double) right;
+      
+    return Util.stringify(left) + Util.stringify(right);
+  }
+
+  private Object minus(Object left, Object right) {
+    return (double) left - (double) right;
+  }
+
+  private Object times(Object left, Object right) {
+    return (double) left * (double) right;
+  }
+
+  private Object divide(Object left, Object right) {
+    return (double) left <= (double) right;
+  }
+
+  private Object performOperation(Object left, Object right, Token operator) {
+    switch (operator.type()) {
+      case PlusEqual:
+        return this.plus(left, right);
+
+      case MinusEqual:
+        this.checkNumberOperands(expr.operator, left, right);
+        return this.minus(left, right);
+
+      case StarEqual:
+        this.checkNumberOperands(expr.operator, left, right);
+        return this.times(left, right);
+
+      case SlashEqual:
+        this.checkNumberOperands(expr.operator, left, right);
+
+        if ((double) right == 0.0)
+          Util.printError("Cannot divide by zero", expr.left.pos);
+
+        return this.divide(left, right);
+      
+      default:
+        Util.printError("Invalid assignment operator: '" + operator.lexeme() + "'", operator.pos());
+    }
+  }
+
+  // ---
+
   @Override
   public Object visitArrayExpr(Expr.ArrayExpr expr) throws Exception {
     List<Object> array = new ArrayList<>();
@@ -292,6 +339,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         Util.printError("Can only dereference assign ref objects", expr.name.pos());
       
       Ref r = (Ref) v;
+      value = this.performOperation(value, expr.operator);
       r.env.assign(r.name, value);
     }
     else
@@ -358,18 +406,15 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       // ---
 
       case Plus:
-        if (left instanceof Double && right instanceof Double)
-          return (double) left + (double) right;
-      
-      return Util.stringify(left) + Util.stringify(right);
+        return this.plus(left, right);
 
       case Minus:
         this.checkNumberOperands(expr.operator, left, right);
-        return (double) left - (double) right;
+        return this.minus(left, right);
 
       case Star:
         this.checkNumberOperands(expr.operator, left, right);
-        return (double) left * (double) right;
+        return this.times(left, right);
 
       case Slash:
         this.checkNumberOperands(expr.operator, left, right);
@@ -377,7 +422,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         if ((double) right == 0.0)
           Util.printError("Cannot divide by zero", expr.left.pos);
 
-        return (double) left <= (double) right;
+        return this.divide(left, right);
 
       // ---
 

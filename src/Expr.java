@@ -41,13 +41,15 @@ public abstract class Expr {
 
   public static class AssignExpr extends Expr {
     final Token name;
+    final Token operator;
     final Expr value;
     final boolean isRef;
 
-    public AssignExpr(Position pos, Token name, Expr value, boolean isRef) {
+    public AssignExpr(Position pos, Token name, Token operator, Expr value, boolean isRef) {
       super(pos);
 
       this.name = name;
+      this.operator = operator;
       this.value = value;
       this.isRef = isRef;
     }
@@ -59,13 +61,15 @@ public abstract class Expr {
 
   public static class AssignIndexExpr extends Expr {
     final Token name;
+    final Token operator;
     final Expr index;
     final Expr value;
 
-    public AssignIndexExpr(Position pos, Token name, Expr index, Expr value) {
+    public AssignIndexExpr(Position pos, Token name, Token operator, Expr index, Expr value) {
       super(pos);
 
       this.name = name;
+      this.operator = operator;
       this.index = index;
       this.value = value;
     }

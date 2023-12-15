@@ -274,11 +274,12 @@ public class Parser {
     Expr expr = this.parseExpr(precedence + 1);
 
     if (this.match(TokenType.Equal)) {
+      Token operator = this.peek(-1);
       Expr right = this.assignment(precedence); // this is because assignment is right-associative
 
       if (expr instanceof Expr.VariableExpr) {
         Token name = ((Expr.VariableExpr) expr).name;
-        return new Expr.AssignExpr(expr.pos, name, right, false);
+        return new Expr.AssignExpr(expr.pos, operator, name, right, false);
       }
       
       else if (expr instanceof Expr.UnaryExpr) {
@@ -286,7 +287,7 @@ public class Parser {
 
         if (unary.operator.type() == TokenType.Star && unary.right instanceof Expr.VariableExpr) {
           Token name = ((Expr.VariableExpr) unary.right).name;
-          return new Expr.AssignExpr(expr.pos, name, right, true);
+          return new Expr.AssignExpr(expr.pos, operator, name, right, true);
         }
       }
 
@@ -295,7 +296,7 @@ public class Parser {
 
         if (index.array instanceof Expr.VariableExpr) {
           Token name = ((Expr.VariableExpr) index.array).name;
-          return new Expr.AssignIndexExpr(expr.pos, name, index.index, right);
+          return new Expr.AssignIndexExpr(expr.pos, operator, name, index.index, right);
         }
       }
       
