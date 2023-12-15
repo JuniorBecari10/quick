@@ -69,24 +69,34 @@ public class Lexer {
 
     switch (c) {
       case '+':
-        this.addToken(TokenType.Plus);
+        if (this.match('='))
+          this.addToken(TokenType.PlusEqual);
+        else
+          this.addToken(TokenType.Plus);
         break;
       
       case '-':
         if (this.match('>'))
           this.addToken(TokenType.Arrow);
+        else if (this.match('='))
+          this.addToken(TokenType.MinusEqual);
         else
           this.addToken(TokenType.Minus);
         break;
       
       case '*':
-        this.addToken(TokenType.Star);
+        if (this.match('='))
+          this.addToken(TokenType.StarEqual);
+        else
+          this.addToken(TokenType.Star);
         break;
 
       case '/':
-        if (this.match('/')) {
-          while (this.peek(0) != '\n') this.advance();
-        }
+        if (this.match('/'))
+          while (this.peek(0) != '\n')
+            this.advance();
+        else if (this.match('='))
+          this.addToken(TokenType.SlashEqual);
         else
           this.addToken(TokenType.Slash);
         break;

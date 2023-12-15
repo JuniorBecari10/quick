@@ -15,7 +15,7 @@ public class Range implements Iterable {
 
   @Override
   public String toString() {
-    return Util.stringify(this.start) + ":" + Util.stringify(this.end) + "," + Util.stringify(this.step);
+    return Util.stringify(this.start) + ".." + Util.stringify(this.end) + ":" + Util.stringify(this.step);
   }
 
   @Override

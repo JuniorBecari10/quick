@@ -11,6 +11,11 @@ public enum TokenType {
   Star,
   Slash,
 
+  PlusEqual,
+  MinusEqual,
+  StarEqual,
+  SlashEqual,
+
   LParen,
   RParen,
 

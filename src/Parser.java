@@ -241,10 +241,11 @@ public class Parser {
    * 6 - Range
    * 7 - Add, Sub
    * 8 - Mul, Div
-   * 9 - Unary
-   * 10 - Index
-   * 11 - Call
-   * 12 - Primary
+   * 9 - Postfix
+   * 10 - Prefix
+   * 11 - Index
+   * 12 - Call
+   * 13 - Primary
    * 
    * - Highest
    */
@@ -385,7 +386,7 @@ public class Parser {
   }
 
   private Expr primary() throws Exception {
-    Position pos = this.peek(-1).pos();
+    Position pos = this.peek(0).pos();
 
     if (this.match(TokenType.FalseKw)) return new Expr.LiteralExpr(pos, false);
     if (this.match(TokenType.TrueKw)) return new Expr.LiteralExpr(pos, true);
