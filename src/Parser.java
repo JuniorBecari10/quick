@@ -101,15 +101,16 @@ public class Parser {
     
     List<Stmt> body;
 
-      if (this.match(TokenType.Colon)) {
-        this.skipNewLines();
-        Expr expr = this.expr();
+    if (this.match(TokenType.Colon)) {
+      this.skipNewLines();
+      Expr expr = this.expr();
 
-        body = new ArrayList<>();
-        body.add(new Stmt.ReturnStmt(expr.pos, expr));
-      }
-      else
-        body = this.block();
+      body = new ArrayList<>();
+      body.add(new Stmt.ReturnStmt(expr.pos, expr));
+    }
+    
+    else
+      body = this.block();
 
     return new Stmt.FnStmt(t.pos(), name, parameters, body);
   }

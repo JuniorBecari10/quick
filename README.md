@@ -65,6 +65,17 @@ if x == 10 -> println("x is 10!")
 else -> println("x is not 10")
 ```
 
+The statement can be split into two lines:
+
+```rs
+let x = 10
+
+if x == 10
+  -> println("x is 10!")
+else
+  -> println("x is not 10")
+```
+
 #### Ternary Operator
 
 Statements don't produce values, but expressions do. `if` is a keyword that represents both a statement and an expression. <br>
@@ -75,7 +86,7 @@ let x = 10
 let y = if x == 10: "hello" else: "bye"
 ```
 
-You can also divide the expression in two lines if you prefer:
+You can also split the expression into two lines if you prefer:
 
 ```rs
 let x = 10
@@ -113,7 +124,7 @@ loop i in array {
 }
 ```
 ```rs
-loop i in 1:10 {
+loop i in 1..10 {
   println(i)
 }
 ```
@@ -129,6 +140,15 @@ while i < 10 {
   i = i + 1
 }
 ```
+
+#### Range
+
+Range is a built-in type in Quick that allows you to iterate over a sequence of numbers. <br>
+This is the syntax:
+```js
+start..end:step
+```
+The `:step` part can be omitted and if so, the default value is `1`.
 
 ### Functions
 
@@ -153,6 +173,16 @@ fn add(x, y): x + y
 ```
 ```rs
 let add = fn(x, y): x + y
+```
+
+The expression can also be written in another line:
+```rs
+fn add(x, y):
+  x + y
+```
+```rs
+let add = fn(x, y):
+  x + y
 ```
 
 ### Including Files
