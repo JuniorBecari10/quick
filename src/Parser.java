@@ -200,8 +200,10 @@ public class Parser {
 
   private List<Stmt> block() throws Exception {
     List<Stmt> statements = new ArrayList<>();
+    this.skipNewLines();
 
     if (this.match(TokenType.Arrow)) {
+      this.skipNewLines();
       statements.add(this.statement());
       return statements;
     }
@@ -239,13 +241,14 @@ public class Parser {
    * 4 - Comparison
    * 5 - In
    * 6 - Range
-   * 7 - Add, Sub
-   * 8 - Mul, Div
+   * 7 - Bitwise Shift
+   * 8 - Add, Sub
+   * 9 - Mul, Div, Mod
    * X - ~~Postfix~~ Not added yet
-   * 9 - Prefix (Unary)
-   * 10 - Index
-   * 11 - Call
-   * 12 - Primary
+   * 10 - Prefix (Unary)
+   * 11 - Index
+   * 12 - Call
+   * 13 - Primary
    * 
    * - Highest
    */
@@ -258,12 +261,13 @@ public class Parser {
       case 4: return this.binary(precedence, TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual);
       case 5: return this.binary(precedence, TokenType.InKw);
       case 6: return this.range(precedence);
-      case 7: return this.binary(precedence, TokenType.Plus, TokenType.Minus);
-      case 8: return this.binary(precedence, TokenType.Star, TokenType.Slash);
-      case 9: return this.unary(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
-      case 10: return this.index(precedence);
-      case 11: return this.call(precedence);
-      case 12: return this.primary();
+      case 7: return this.binary(precedence, TokenType.LShift, TokenType.RShift);
+      case 8: return this.binary(precedence, TokenType.Plus, TokenType.Minus);
+      case 9: return this.binary(precedence, TokenType.Star, TokenType.Slash, TokenType.Modulo);
+      case 10: return this.unary(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
+      case 11: return this.index(precedence);
+      case 12: return this.call(precedence);
+      case 13: return this.primary();
     }
 
     Util.printError("Invalid precedence: '" + precedence + "'", null);

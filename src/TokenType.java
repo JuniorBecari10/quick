@@ -16,8 +16,13 @@ public enum TokenType {
   StarEqual,
   SlashEqual,
 
+  Modulo,
+
   LParen,
   RParen,
+
+  LShift,
+  RShift,
 
   LBracket,
   RBracket,

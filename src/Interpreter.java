@@ -224,6 +224,520 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
       public String toString() { return "<native fn>"; }
     });
+
+    globals.define("factorial", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+          Double res = d;
+
+          while (d > 1) {
+            res = res * (d - 1);
+            d--;
+          }
+
+          return res;
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("fibonacci", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double n = (Double) args.get(0);
+          Double current = 1.0;
+          Double prev = 0.0;
+
+          for (int i = 2; i <= n; i++) {
+            current += prev;
+            prev = current - prev;
+          }
+
+          return current;
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("sqrt", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          if (d < 0)
+            return null;
+
+          return Math.sqrt(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("cbrt", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          if (d < 0)
+            return null;
+
+          return Math.cbrt(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("lcm", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double && args.get(1) instanceof Double) {
+          Double a = (Double) args.get(0);
+          Double b = (Double) args.get(1);
+
+          if (a == 0 || b == 0)
+            return 0;
+
+          double absNumber1 = Math.abs(a);
+          double absNumber2 = Math.abs(b);
+
+          double absHigherNumber = Math.max(absNumber1, absNumber2);
+          double absLowerNumber = Math.min(absNumber1, absNumber2);
+
+          double lcm = absHigherNumber;
+          
+          while (lcm % absLowerNumber != 0) {
+            lcm += absHigherNumber;
+          }
+            
+          return lcm;
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("gcd", new Callable() {
+      public int arity() { return 2; }
+
+    public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+      if (args.get(0) instanceof Double && args.get(1) instanceof Double) {
+        Double a = (Double) args.get(0);
+        Double b = (Double) args.get(1);
+        
+        double i;
+        if (a < b)
+          i = a;
+        else
+          i = b;
+        
+        for (; i > 1; i--) {
+          if (a % i == 0 && b % i == 0)
+            return i;
+        }
+        
+        return 1;
+      }
+      
+      return null;
+    }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("sin", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.sin(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("cos", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.cos(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("tan", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.tan(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("asin", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.asin(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("acos", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.acos(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("atan", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.atan(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("sinh", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.sinh(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("cosh", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.cosh(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("tanh", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          return Math.tanh(d);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("atan2", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double && args.get(1) instanceof Double) {
+          Double a = (Double) args.get(0);
+          Double b = (Double) args.get(1);
+
+          return Math.atan2(a, b);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("power", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double && args.get(1) instanceof Double) {
+          Double a = (Double) args.get(0);
+          Double b = (Double) args.get(1);
+
+          return Math.pow(a, b);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("log", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double a = (Double) args.get(0);
+
+          return Math.log(a);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("log10", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double a = (Double) args.get(0);
+
+          return Math.log10(a);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("log1p", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double a = (Double) args.get(0);
+
+          return Math.log1p(a);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("toDegrees", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double a = (Double) args.get(0);
+
+          return Math.toDegrees(a);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("toRadians", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double a = (Double) args.get(0);
+
+          return Math.toRadians(a);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("pi", new Callable() {
+      public int arity() { return 0; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        return Math.PI;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("e", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        return Math.E;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("abs", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double a = (Double) args.get(0);
+
+          return Math.abs(a);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    // -- Arrays --
+
+    globals.define("append", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Array) {
+          Array a = (Array) args.get(0);
+
+          List<Object> list = new ArrayList<>(a.array);
+          list.add(args.get(1));
+
+          return new Array(list);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("push", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Array) {
+          Array a = (Array) args.get(0);
+          a.array.add(args.get(1));
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("remove", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Array && args.get(1) instanceof Double) {
+          Array a = (Array) args.get(0);
+          Double d = (Double) args.get(1);
+
+          if (d.intValue() != d)
+            return null;
+          
+          a.array.remove(d.intValue());
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("insert", new Callable() {
+      public int arity() { return 3; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Array && args.get(2) instanceof Double) {
+          Array a = (Array) args.get(0);
+          Object element = args.get(1);
+          Double d = (Double) args.get(2);
+
+          if (d.intValue() != d)
+            return null;
+          
+          a.array.add(d.intValue(), element);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
   }
 
   public void interpret() throws Exception {
@@ -550,6 +1064,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
           Util.printError("Cannot divide by zero", expr.left.pos);
 
         return (double) left <= (double) right;
+
+      case Modulo:
+        checkNumberOperands(expr.operator, left, right);
+        return (double) left % (double) right;
+
+      // TODO! add bitwise shift
 
       // ---
 
