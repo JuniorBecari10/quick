@@ -2,9 +2,18 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Main {
+  public static final String VERSION = "1.0";
+
   public static void main(String[] args) {
     if (args.length < 1) {
-      System.out.println("Usage: quick <file> [args]");
+      System.out.println("Usage: quick <file> [args] | (-h | --help)");
+      return;
+    }
+
+    if (args[0].equals("-h") || args[0].equals("--help")) {
+      System.out.println("Quick v" + VERSION);
+      System.out.println("Made by JuniorBecari10.");
+
       return;
     }
 
