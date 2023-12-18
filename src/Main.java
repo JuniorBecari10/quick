@@ -17,7 +17,6 @@ public class Main {
       Modules.execute(stmts);
     }
     catch (Exception e) {
-      e.printStackTrace();
       return;
     }
   }
