@@ -1,4 +1,4 @@
-ARGS = -h
+ARGS = -v
 
 all: compile run
 

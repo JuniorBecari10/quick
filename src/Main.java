@@ -6,11 +6,11 @@ public class Main {
 
   public static void main(String[] args) {
     if (args.length < 1) {
-      System.out.println("Usage: quick <file> [args] | (-h | --help)");
+      System.out.println("Usage: quick <file> [args] (-v | --version)");
       return;
     }
 
-    if (args[0].equals("-h") || args[0].equals("--help")) {
+    if (args[0].equals("-v") || args[0].equals("--version")) {
       System.out.println("Quick v" + VERSION);
       System.out.println("Made by JuniorBecari10.");
 
