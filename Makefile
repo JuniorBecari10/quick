@@ -9,3 +9,7 @@ compile:
 run:
 	cd bin && \
 	java Main $(ARGS)
+
+jar:
+	cd bin && \
+	jar cfm ../build/quick.jar ../MANIFEST.MF *
