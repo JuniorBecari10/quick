@@ -92,6 +92,7 @@ public class Parser {
 
     if (!this.check(TokenType.RParen)) {
       do {
+        this.skipNewLines();
         parameters.add(this.consume(TokenType.Identifier, "Expected parameter name"));
       }
       while (this.match(TokenType.Comma));
@@ -363,6 +364,7 @@ public class Parser {
         
         if (!this.check(TokenType.RParen)) {
           do {
+            this.skipNewLines();
             args.add(this.expr());
           }
           while (this.match(TokenType.Comma));
@@ -425,6 +427,7 @@ public class Parser {
 
       if (!this.check(TokenType.RParen)) {
         do {
+          this.skipNewLines();
           parameters.add(this.consume(TokenType.Identifier, "Expected parameter name"));
         }
         while (this.match(TokenType.Comma));
@@ -452,6 +455,7 @@ public class Parser {
 
       if (!this.check(TokenType.RBracket)) {
         do {
+          this.skipNewLines();
           items.add(this.expr());
         }
         while (this.match(TokenType.Comma));

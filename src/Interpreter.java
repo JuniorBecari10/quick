@@ -1,3 +1,7 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +12,6 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   
   private List<Stmt> statements;
 
-  // TODO! any runtime error that happens in any file, the error message will show always the main one
   public Interpreter(List<Stmt> statements) {
     this.statements = statements;
 
@@ -73,6 +76,25 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
       public Object call(Interpreter interpreter, List<Object> args) throws Exception {
         return new Array(Arrays.asList((Object[]) Util.args));
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("exit", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+
+          if (d.intValue() != d)
+            return null;
+          
+          System.exit(d.intValue());
+        }
+
+        return null;
       }
 
       public String toString() { return "<native fn>"; }
@@ -745,6 +767,122 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         }
 
         return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("split", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof String && args.get(1) instanceof String) {
+          String s = (String) args.get(0);
+          String sep = (String) args.get(1);
+
+          String[] spl = s.split(sep);
+          List<Object> list = new ArrayList<>();
+
+          for (String st : spl)
+            list.add(st);
+
+
+          return new Array(list);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+     globals.define("join", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Array && args.get(1) instanceof String) {
+          Array a = (Array) args.get(0);
+          String sep = (String) args.get(1);
+
+          List<String> strs = new ArrayList<>();
+
+          for (Object o : a.array)
+            strs.add(Util.stringify(o));
+
+          return String.join(sep, strs);
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    // -- Files --
+
+    globals.define("readFile", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          return Files.readString(new File((String) args.get(0)).toPath());
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("writeFile", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          try (BufferedWriter wr = new BufferedWriter(new FileWriter((String) args.get(0)));) {
+            wr.write((String) args.get(1));
+          }
+        }
+        catch (Exception e) {
+          return null;
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("appendFile", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          try (BufferedWriter wr = new BufferedWriter(new FileWriter((String) args.get(0)));) {
+            wr.append((String) args.get(1));
+          }
+        }
+        catch (Exception e) {
+          return null;
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("existsFile", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          return new File((String) args.get(0)).exists();
+        }
+        catch (Exception e) {
+          return false;
+        }
       }
 
       public String toString() { return "<native fn>"; }
