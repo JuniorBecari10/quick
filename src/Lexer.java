@@ -42,8 +42,8 @@ public class Lexer {
     this.start = 0;
     this.current = 0;
 
-    this.startPos = new Position(0, 0);
-    this.currentPos = new Position(0, 0);
+    this.startPos = new Position(0, 0, Modules.currentFileName);
+    this.currentPos = new Position(0, 0, Modules.currentFileName);
 
     this.tokens = new ArrayList<>();
   }
