@@ -14,6 +14,8 @@ public class Util {
     }
   }
 
+  public static String[] args;
+
   public static <T> Optional<T> supressException(Supplier<T> supplier) {
     try {
       T value = supplier.get();

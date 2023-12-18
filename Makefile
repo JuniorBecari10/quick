@@ -1,4 +1,4 @@
-ARGS = test.qk
+ARGS = test.qk hello 1023
 
 all: compile run
 

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Object> {
@@ -62,6 +63,16 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public Object call(Interpreter interpreter, List<Object> args) throws Exception {
         System.out.println("Panic: " + Util.stringify(args.get(0)));
         throw new Exception();
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("args", new Callable() {
+      public int arity() { return 0; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        return new Array(Arrays.asList((Object[]) Util.args));
       }
 
       public String toString() { return "<native fn>"; }
