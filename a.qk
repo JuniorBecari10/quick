@@ -1,7 +1,0 @@
-fn inc(ptr) {
-  *ptr = *ptr + 1
-}
-
-let x = 10
-inc(&x)
-println(x)
