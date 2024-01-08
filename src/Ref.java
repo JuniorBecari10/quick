@@ -13,6 +13,15 @@ public class Ref {
 
   @Override
   public String toString() {
-    return "&" + this.name;
+    try {
+      return "&" + Util.stringify(this.getReferenced());
+    } catch (Exception e) {
+      try {
+        Util.printError("Variable '" + name.lexeme() + "' doesn't exist in this or a parent scope", name.pos());
+      } catch (Exception e1) {}
+    }
+
+    // expected this not to happen
+    return "";
   }
 }

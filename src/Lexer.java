@@ -23,7 +23,6 @@ public class Lexer {
     keywords.put("loop", TokenType.LoopKw);
     keywords.put("while", TokenType.WhileKw);
     keywords.put("in", TokenType.InKw);
-    keywords.put("incl", TokenType.InclKw);
     keywords.put("fn", TokenType.FnKw);
     keywords.put("if", TokenType.IfKw);
     keywords.put("else", TokenType.ElseKw);
@@ -42,8 +41,8 @@ public class Lexer {
     this.start = 0;
     this.current = 0;
 
-    this.startPos = new Position(0, 0, Modules.currentFileName);
-    this.currentPos = new Position(0, 0, Modules.currentFileName);
+    this.startPos = new Position(0, 0);
+    this.currentPos = new Position(0, 0);
 
     this.tokens = new ArrayList<>();
   }

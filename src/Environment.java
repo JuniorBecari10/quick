@@ -29,7 +29,7 @@ public class Environment {
     if (this.enclosing != null)
       return this.enclosing.get(name);
 
-    Util.printError("Variable '" + name.lexeme() + "' doesn't exist", name.pos());
+    Util.printError("Variable '" + name.lexeme() + "' doesn't exist in this or a parent scope", name.pos());
     return null;
   }
 
@@ -44,7 +44,7 @@ public class Environment {
       return;
     }
 
-    Util.printError("Variable '" + name.lexeme() + "' doesn't exist", name.pos());
+    Util.printError("Variable '" + name.lexeme() + "' doesn't exist in this or a parent scope", name.pos());
   }
 
   public void assignArray(Token name, int index, Object value) throws Exception {
@@ -66,6 +66,6 @@ public class Environment {
       return;
     }
 
-    Util.printError("Variable '" + name.lexeme() + "' doesn't exist", name.pos());
+    Util.printError("Variable '" + name.lexeme() + "' doesn't exist in this or a parent scope", name.pos());
   }
 }

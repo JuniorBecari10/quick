@@ -1,4 +1,4 @@
-ARGS = -v
+ARGS = ../a.qk
 
 all: compile run
 

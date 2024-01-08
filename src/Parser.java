@@ -1,4 +1,3 @@
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +15,6 @@ public class Parser {
 
     while (!this.isAtEnd(0)) {
       Stmt stmt = this.statement();
-
-      if (stmt instanceof Stmt.InclStmt) {
-        List<Stmt> add = this.parseInclude(stmt);
-        statements.addAll(add);
-
-        continue;
-      }
 
       if (stmt != null)
         statements.add(stmt);
@@ -47,7 +39,6 @@ public class Parser {
       if (this.match(TokenType.ContinueKw)) return this.continueStmt(t);
       if (this.match(TokenType.FnKw)) return fnStmt(t);
       if (this.match(TokenType.IfKw)) return ifStmt(t);
-      if (this.match(TokenType.InclKw)) return inclStmt(t);
       if (this.match(TokenType.LetKw)) return letStmt(t);
       if (this.match(TokenType.LoopKw)) return loopStmt(t);
       if (this.match(TokenType.ReturnKw)) return returnStmt(t);
@@ -138,13 +129,6 @@ public class Parser {
     return new Stmt.IfStmt(t.pos(), condition, thenBranch, elseBranch);
   }
 
-  private Stmt inclStmt(Token t) throws Exception {
-    Token mod = this.consume(TokenType.Identifier, "Expected module name");
-
-    this.consumeNewLine();
-    return new Stmt.InclStmt(t.pos(), mod);
-  }
-
   // let name = value
   private Stmt letStmt(Token t) throws Exception {
     Token name = this.consume(TokenType.Identifier, "Expected variable name after 'let', got '" + this.peek(0).lexeme() + "'");
@@ -206,6 +190,7 @@ public class Parser {
 
     if (this.match(TokenType.Arrow)) {
       this.skipNewLines();
+
       statements.add(this.statement());
       return statements;
     }
@@ -219,7 +204,6 @@ public class Parser {
     
     this.skipNewLines();
     this.consume(TokenType.RBrace, "Expected '}' after block, got '" + this.peek(0).type() + "'");
-    this.skipNewLines();
 
     return statements;
   }
@@ -285,7 +269,7 @@ public class Parser {
 
       if (expr instanceof Expr.VariableExpr) {
         Token name = ((Expr.VariableExpr) expr).name;
-        return new Expr.AssignExpr(expr.pos, operator, name, right, false);
+        return new Expr.AssignExpr(expr.pos, name, operator, right, false);
       }
       
       else if (expr instanceof Expr.UnaryExpr) {
@@ -293,7 +277,7 @@ public class Parser {
 
         if (unary.operator.type() == TokenType.Star && unary.right instanceof Expr.VariableExpr) {
           Token name = ((Expr.VariableExpr) unary.right).name;
-          return new Expr.AssignExpr(expr.pos, operator, name, right, true);
+          return new Expr.AssignExpr(expr.pos, name, operator, right, true);
         }
       }
 
@@ -302,7 +286,7 @@ public class Parser {
 
         if (index.array instanceof Expr.VariableExpr) {
           Token name = ((Expr.VariableExpr) index.array).name;
-          return new Expr.AssignIndexExpr(expr.pos, operator, name, index.index, right);
+          return new Expr.AssignIndexExpr(expr.pos, name, operator, index.index, right);
         }
       }
       
@@ -339,6 +323,7 @@ public class Parser {
     return this.parseExpr(precedence + 1);
   }
 
+  // talvez se a pessoa explicitamente colocar 1 de step lançar um warning falando que é desnecessário
   private Expr range(int precedence) throws Exception {
     Expr expr = this.parseExpr(precedence + 1);
 
@@ -530,19 +515,6 @@ public class Parser {
   }
 
   // ---
-
-  private List<Stmt> parseInclude(Stmt stmt) throws Exception {
-    Stmt.InclStmt incl = (Stmt.InclStmt) stmt;
-    File f = new File(Modules.baseFolder + File.separator + incl.mod.lexeme() + Modules.FILE_EXT);
-
-    if (Modules.included.contains(incl.mod.lexeme() + Modules.FILE_EXT))
-      Util.printError("Module '" + incl.mod.lexeme() + "' already included", stmt.pos);
-
-    if (!f.exists())
-      Util.printError("Module '" + incl.mod.lexeme() + "' doesn't exist", incl.mod.pos());
-    
-    return Modules.readFile(f);
-  }
 
   private void synchronize() {
     this.advance();

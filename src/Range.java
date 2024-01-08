@@ -20,7 +20,7 @@ public class Range implements Iterable {
 
   @Override
   public boolean hasNext() {
-    return this.counter + this.step <= this.end;
+    return this.counter + this.step < this.end;
   }
 
   @Override

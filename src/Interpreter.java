@@ -100,6 +100,25 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public String toString() { return "<native fn>"; }
     });
 
+    globals.define("len", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        final Object obj = args.get(0);
+        
+        if (obj instanceof String) {
+          return (double) ((String) obj).length();
+        }
+        else if (obj instanceof Array) {
+          return (double) ((Array) obj).array.size();
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
     // -- Types --
 
     globals.define("isInt", new Callable() {
@@ -916,7 +935,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     Environment previous = this.environment;
 
     try {
-      this.environment = environment;
+      this.environment = new Environment(environment);
 
       for (Stmt stmt : statements)
         this.execute(stmt);
@@ -944,12 +963,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   private static void checkNumberOperand(Token operator, Object operand) throws Exception {
     if (operand instanceof Double) return;
-    Util.printError("Operand must be a number", operator.pos());
+    Util.printError("Operand must be a number | value: " + operand, operator.pos());
   }
 
   private static void checkNumberOperands(Token operator, Object left, Object right) throws Exception {
     if (left instanceof Double && right instanceof Double) return;
-    Util.printError("Operands must be numbers", operator.pos());
+    Util.printError("Operands must be numbers | values: left: " + left + ", right: " + right, operator.pos());
   }
 
   /*
@@ -1016,12 +1035,13 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return null;
   }
 
+  // for now, let's disable shadowing because of a bug with pointers
   @Override
   public Void visitLetStmt(Stmt.LetStmt stmt) throws Exception {
     Object value = this.evaluate(stmt.value);
 
     if (this.environment.containsVariable(stmt.name.lexeme()))
-      Util.printError("Cannot redeclare variable '" + stmt.name.lexeme() + "'", stmt.name.pos());
+      Util.printError("Cannot redeclare or shadow variable '" + stmt.name.lexeme() + "'", stmt.name.pos());
 
     this.environment.define(stmt.name.lexeme(), value);
 
@@ -1124,7 +1144,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       Object v = this.environment.get(expr.name);
 
       if (!(v instanceof Ref))
-        Util.printError("Can only dereference assign ref objects", expr.name.pos());
+        Util.printError("Can only dereference assign reference objects", expr.name.pos());
       
       Ref r = (Ref) v;
       r.env.assign(r.name, value);
@@ -1289,7 +1309,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     Array a = (Array) array;
 
     if (ind < 0 || ind >= a.array.size())
-      Util.printError("Index out of bounds: '" + ind + "' is outside the bounds for an array of length " + a.array.size(), expr.pos);
+      Util.printError("Index out of bounds: index " + ind.intValue() + " is outside the bounds for an array of length " + a.array.size(), expr.pos);
     
     return a.array.get(ind.intValue());
    }
