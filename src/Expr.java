@@ -42,14 +42,16 @@ public abstract class Expr {
   public static class AssignExpr extends Expr {
     final Token name;
     final Token operator;
+    final Expr expr;
     final Expr value;
     final boolean isRef;
 
-    public AssignExpr(Position pos, Token name, Token operator, Expr value, boolean isRef) {
+    public AssignExpr(Position pos, Token name, Token operator, Expr expr, Expr value, boolean isRef) {
       super(pos);
 
       this.name = name;
       this.operator = operator;
+      this.expr = expr;
       this.value = value;
       this.isRef = isRef;
     }
@@ -63,14 +65,16 @@ public abstract class Expr {
     final Token name;
     final Token operator;
     final Expr index;
+    final Expr expr;
     final Expr value;
 
-    public AssignIndexExpr(Position pos, Token name, Token operator, Expr index, Expr value) {
+    public AssignIndexExpr(Position pos, Token name, Token operator, Expr index, Expr expr, Expr value) {
       super(pos);
 
       this.name = name;
       this.operator = operator;
       this.index = index;
+      this.expr = expr;
       this.value = value;
     }
 
@@ -221,13 +225,13 @@ public abstract class Expr {
 
   public static class UnaryExpr extends Expr {
     final Token operator;
-    final Expr right;
+    final Expr operand;
 
     public UnaryExpr(Position pos, Token operator, Expr right) {
       super(pos);
 
       this.operator = operator;
-      this.right = right;
+      this.operand = right;
     }
 
     public <R> R accept(ExprVisitor<R> visitor) throws Exception {

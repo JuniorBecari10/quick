@@ -241,11 +241,11 @@ public class Parser {
    * 7 - Bitwise Shift
    * 8 - Add, Sub
    * 9 - Mul, Div, Mod
-   * X - ~~Postfix~~ Not added yet
-   * 10 - Prefix (Unary)
-   * 11 - Index
-   * 12 - Call
-   * 13 - Primary
+   * 10 - Postfix
+   * 11 - Prefix
+   * 12 - Index
+   * 13 - Call
+   * 14 - Primary
    * 
    * - Highest
    */
@@ -261,10 +261,11 @@ public class Parser {
       case 7: return this.binary(precedence, TokenType.LShift, TokenType.RShift);
       case 8: return this.binary(precedence, TokenType.Plus, TokenType.Minus);
       case 9: return this.binary(precedence, TokenType.Star, TokenType.Slash, TokenType.Modulo);
-      case 10: return this.unary(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
-      case 11: return this.index(precedence);
-      case 12: return this.call(precedence);
-      case 13: return this.primary();
+      case 10: return this.postfix(precedence, TokenType.DoublePlus, TokenType.DoubleMinus);
+      case 11: return this.prefix(precedence, TokenType.Bang, TokenType.Minus, TokenType.Ampersand, TokenType.Star);
+      case 12: return this.index(precedence);
+      case 13: return this.call(precedence);
+      case 14: return this.primary();
     }
 
     Util.printError("Invalid precedence: '" + precedence + "'", null);
@@ -274,21 +275,21 @@ public class Parser {
   private Expr assignment(int precedence) throws Exception {
     Expr expr = this.parseExpr(precedence + 1);
 
-    if (this.match(TokenType.Equal)) {
+    if (this.match(TokenType.Equal, TokenType.PlusEqual, TokenType.MinusEqual, TokenType.StarEqual, TokenType.SlashEqual, TokenType.ModuloEqual)) {
       Token operator = this.peek(-1);
       Expr right = this.assignment(precedence); // this is because assignment is right-associative
 
       if (expr instanceof Expr.VariableExpr) {
         Token name = ((Expr.VariableExpr) expr).name;
-        return new Expr.AssignExpr(expr.pos, name, operator, right, false);
+        return new Expr.AssignExpr(expr.pos, name, operator, expr, right, false);
       }
       
       else if (expr instanceof Expr.UnaryExpr) {
         Expr.UnaryExpr unary = (Expr.UnaryExpr) expr;
 
-        if (unary.operator.type() == TokenType.Star && unary.right instanceof Expr.VariableExpr) {
-          Token name = ((Expr.VariableExpr) unary.right).name;
-          return new Expr.AssignExpr(expr.pos, name, operator, right, true);
+        if (unary.operator.type() == TokenType.Star && unary.operand instanceof Expr.VariableExpr) {
+          Token name = ((Expr.VariableExpr) unary.operand).name;
+          return new Expr.AssignExpr(expr.pos, name, operator, expr, right, true);
         }
       }
 
@@ -297,7 +298,7 @@ public class Parser {
 
         if (index.array instanceof Expr.VariableExpr) {
           Token name = ((Expr.VariableExpr) index.array).name;
-          return new Expr.AssignIndexExpr(expr.pos, name, operator, index.index, right);
+          return new Expr.AssignIndexExpr(expr.pos, name, operator, index.index, expr, right);
         }
       }
       
@@ -320,10 +321,10 @@ public class Parser {
     return expr;
   }
 
-  private Expr unary(int precedence, TokenType... operators) throws Exception {
+  private Expr prefix(int precedence, TokenType... operators) throws Exception {
     if (this.match(operators)) {
       Token operator = this.peek(-1);
-      Expr right = this.unary(precedence, operators); // always will be unary, since the precedence is the same
+      Expr right = this.prefix(precedence, operators); // always will be unary, since the precedence is the same
       
       if ((operator.type() == TokenType.Ampersand || operator.type() == TokenType.Star) && !(right instanceof Expr.VariableExpr))
         Util.printError("Can only reference or dereference identifiers", operator.pos());
@@ -332,6 +333,18 @@ public class Parser {
     }
 
     return this.parseExpr(precedence + 1);
+  }
+
+  private Expr postfix(int precedence, TokenType... operators) throws Exception {
+    Expr left = this.parseExpr(precedence + 1);
+
+    if (this.match(operators)) {
+      Token operator = this.peek(-1);
+      
+      return new Expr.UnaryExpr(operator.pos(), operator, left);
+    }
+
+    return left;
   }
 
   // talvez se a pessoa explicitamente colocar 1 de step lançar um warning falando que é desnecessário

@@ -55,6 +55,7 @@ public class Lexer {
       try {
         this.token();
       } catch (Exception e) {
+        e.printStackTrace();
         continue;
       }
     }
@@ -96,7 +97,7 @@ public class Lexer {
 
       case '/':
         if (this.match('/'))
-          while (this.peek(0) != '\n')
+          while (!this.isAtEnd() && this.peek(0) != '\n')
             this.advance();
         else if (this.match('='))
           this.addToken(TokenType.SlashEqual);
@@ -105,7 +106,10 @@ public class Lexer {
         break;
 
       case '%':
-        this.addToken(TokenType.Modulo);
+        if (this.match('='))
+          this.addToken(TokenType.ModuloEqual);
+        else
+          this.addToken(TokenType.Modulo);
         break;
 
       case '(':

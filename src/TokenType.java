@@ -15,6 +15,7 @@ public enum TokenType {
   MinusEqual,
   StarEqual,
   SlashEqual,
+  ModuloEqual,
 
   DoublePlus,
   DoubleMinus,

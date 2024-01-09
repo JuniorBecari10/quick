@@ -1009,6 +1009,69 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return true;
   }
 
+  private Object greater(Token operator, Object left, Object right) throws Exception {
+    checkNumberOperands(operator, left, right);
+    return (double) left > (double) right;
+  }
+
+  private Object greaterEqual(Token operator, Object left, Object right) throws Exception {
+    checkNumberOperands(operator, left, right);
+    return (double) left >= (double) right;
+  }
+
+  private Object less(Token operator, Object left, Object right) throws Exception {
+    checkNumberOperands(operator, left, right);
+    return (double) left < (double) right;
+  }
+
+  private Object lessEqual(Token operator, Object left, Object right) throws Exception {
+    checkNumberOperands(operator, left, right);
+    return (double) left <= (double) right;
+  }
+
+  private Object plus(Token operator, Object left, Object right) throws Exception {
+    if (left instanceof Double && right instanceof Double)
+      return (double) left + (double) right;
+      
+    return Util.stringify(left) + Util.stringify(right);
+  }
+
+  private Object minus(Token operator, Object left, Object right) throws Exception {
+    checkNumberOperands(operator, left, right);
+    return (double) left - (double) right;
+  }
+
+  private Object times(Token operator, Object left, Object right) throws Exception {
+    checkNumberOperands(operator, left, right);
+    return (double) left * (double) right;
+  }
+
+  private Object divide(Token operator, Object left, Object right, Expr leftExpr) throws Exception {
+    checkNumberOperands(operator, left, right);
+
+    if ((double) right == 0.0)
+      Util.printError("Cannot divide by zero | values: left: " + Util.stringify(left) + ", right: " + Util.stringify(right), leftExpr.pos);
+
+    return (double) left / (double) right;
+  }
+
+  private Object modulo(Token operator, Object left, Object right) throws Exception {
+    checkNumberOperands(operator, left, right);
+    return (double) left % (double) right;
+  }
+
+  private Object and(Object left, Object right) throws Exception {
+    return this.isTruthy(left) && this.isTruthy(right);
+  }
+
+  private Object or(Object left, Object right) throws Exception {
+    return this.isTruthy(left) || this.isTruthy(right);
+  }
+
+  private Object notEqual(Object left, Object right) throws Exception {
+    return !this.isEqual(left, right);
+  }
+
   private boolean isEqual(Object a, Object b) {
     if (a == null && b == null) return true;
     if (a == null) return false;
@@ -1018,12 +1081,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   private static void checkNumberOperand(Token operator, Object operand) throws Exception {
     if (operand instanceof Double) return;
-    Util.printError("Operand must be a number | value: " + operand, operator.pos());
+    Util.printError("Operand must be a number | value: " + Util.stringify(operand), operator.pos());
   }
 
   private static void checkNumberOperands(Token operator, Object left, Object right) throws Exception {
     if (left instanceof Double && right instanceof Double) return;
-    Util.printError("Operands must be numbers | values: left: " + left + ", right: " + right, operator.pos());
+    Util.printError("Operands must be numbers | values: left: " + Util.stringify(left) + ", right: " + Util.stringify(right), operator.pos());
   }
 
   /*
@@ -1200,6 +1263,16 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   public Object visitAssignExpr(Expr.AssignExpr expr) throws Exception {
     Object value = this.evaluate(expr.value);
 
+    switch (expr.operator.type()) {
+      case PlusEqual -> value = this.plus(expr.operator, this.evaluate(expr.expr), value);
+      case MinusEqual -> value = this.minus(expr.operator, this.evaluate(expr.expr), value);
+      case StarEqual -> value = this.times(expr.operator, this.evaluate(expr.expr), value);
+      case SlashEqual -> value = this.divide(expr.operator, this.evaluate(expr.expr), value, expr.expr);
+      case ModuloEqual -> value = this.modulo(expr.operator, this.evaluate(expr.expr), value);
+
+      default -> {} // TODO! assign the result of postfix to the variable
+    }
+
     if (expr.isRef) {
       Object v = this.environment.get(expr.name);
 
@@ -1242,61 +1315,46 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         return this.isEqual(left, right);
     
       case BangEqual:
-        return !this.isEqual(left, right);
+        return this.notEqual(left, right);
 
       // ---
 
       case Ampersand:
-        return this.isTruthy(left) && this.isTruthy(right);
+        return this.and(left, right);
 
       case VerticalBar:
-        return this.isTruthy(left) || this.isTruthy(right);
+        return this.or(left, right);
 
       // ---
 
       case Greater:
-        checkNumberOperands(expr.operator, left, right);
-        return (double) left > (double) right;
+        return this.greater(expr.operator, left, right);
 
       case GreaterEqual:
-        checkNumberOperands(expr.operator, left, right);
-        return (double) left >= (double) right;
+        return this.greaterEqual(expr.operator, left, right);
 
       case Less:
-        checkNumberOperands(expr.operator, left, right);
-        return (double) left < (double) right;
+        return this.less(expr.operator, left, right);
 
       case LessEqual:
-        checkNumberOperands(expr.operator, left, right);
-        return (double) left <= (double) right;
+        return this.lessEqual(expr.operator, left, right);
 
       // ---
 
       case Plus:
-        if (left instanceof Double && right instanceof Double)
-          return (double) left + (double) right;
-      
-      return Util.stringify(left) + Util.stringify(right);
+        return this.plus(expr.operator, left, right);
 
       case Minus:
-        checkNumberOperands(expr.operator, left, right);
-        return (double) left - (double) right;
+        return this.minus(expr.operator, left, right);
 
       case Star:
-        checkNumberOperands(expr.operator, left, right);
-        return (double) left * (double) right;
+        return this.times(expr.operator, left, right);
 
       case Slash:
-        checkNumberOperands(expr.operator, left, right);
-
-        if ((double) right == 0.0)
-          Util.printError("Cannot divide by zero", expr.left.pos);
-
-        return (double) left <= (double) right;
+        return this.divide(expr.operator, left, right, expr.left);
 
       case Modulo:
-        checkNumberOperands(expr.operator, left, right);
-        return (double) left % (double) right;
+        return this.modulo(expr.operator, left, right);
 
       // TODO! add bitwise shift
 
@@ -1304,7 +1362,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
       case InKw:
         if (!(right instanceof Array))
-          Util.printError("Right side of the 'in' expression must be an array", expr.left.pos);
+          Util.printError("Right side of an 'in' expression must be an array", expr.left.pos);
         
         Array a = (Array) right;
 
@@ -1409,26 +1467,33 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Object visitUnaryExpr(Expr.UnaryExpr expr) throws Exception {
-    Object right = this.evaluate(expr.right);
+    Object operand = this.evaluate(expr.operand);
 
     switch (expr.operator.type()) {
       case Bang:
-        return !this.isTruthy(right);
+        return !this.isTruthy(operand);
       
       case Minus:
-        checkNumberOperand(expr.operator, right);
-        return -(double) right;
+        checkNumberOperand(expr.operator, operand);
+        return -(double) operand;
       
       case Ampersand:
-        return new Ref(((Expr.VariableExpr) expr.right).name, this.environment);
+        return new Ref(((Expr.VariableExpr) expr.operand).name, this.environment);
       
       case Star:
-        if (!(right instanceof Ref))
-          Util.printError("Can only dereference ref objects", expr.operator.pos());
+        if (!(operand instanceof Ref))
+          Util.printError("Can only dereference reference objects", expr.operator.pos());
         
-        Ref r = (Ref) right;
+        Ref r = (Ref) operand;
         return r.env.get(r.name);
       
+      case DoublePlus:
+        Object res = this.plus(expr.operator, operand, 1.0);
+        return res;
+
+      case DoubleMinus:
+        return this.minus(expr.operator, operand, 1.0);
+
       default:
         Util.printError("Invalid unary operator: '" + expr.operator.lexeme() + "'", expr.operator.pos());
         return null;
