@@ -54,6 +54,7 @@ public class Parser {
 
   // ---
 
+  // { stmts }
   private Stmt blockStmt(Token t) throws Exception {
     Stmt.BlockStmt stmt = new Stmt.BlockStmt(t.pos(), this.block());
 
@@ -61,6 +62,7 @@ public class Parser {
     return stmt;
   }
 
+  // break
   private Stmt breakStmt(Token t) throws Exception {
     Stmt.BreakStmt stmt = new Stmt.BreakStmt(t.pos());
 
@@ -68,6 +70,7 @@ public class Parser {
     return stmt;
   }
 
+  // continue
   private Stmt continueStmt(Token t) throws Exception {
     Stmt.ContinueStmt stmt = new Stmt.ContinueStmt(t.pos());
 
@@ -75,6 +78,7 @@ public class Parser {
     return stmt;
   }
 
+  // fn name([params]) { body }
   private Stmt fnStmt(Token t) throws Exception {
     Token name = this.consume(TokenType.Identifier, "Expected function name");
     this.consume(TokenType.LParen, "Expected '(' after function name");
@@ -107,7 +111,7 @@ public class Parser {
     return new Stmt.FnStmt(t.pos(), name, parameters, body);
   }
 
-  // if condition { thenBranch } else/(if condition ...) { elseBranch } 
+  // if condition { thenBranch } [else/(if condition ...) { elseBranch }]
   private Stmt ifStmt(Token t) throws Exception {
     Expr condition = this.expr();
 
@@ -129,10 +133,13 @@ public class Parser {
     return new Stmt.IfStmt(t.pos(), condition, thenBranch, elseBranch);
   }
 
-  // let name = value
+  // let name [= value]
   private Stmt letStmt(Token t) throws Exception {
     Token name = this.consume(TokenType.Identifier, "Expected variable name after 'let', got '" + this.peek(0).lexeme() + "'");
     Expr value = null;
+
+    if (this.isAtEnd(0) || this.match(TokenType.NewLine))
+      return new Stmt.LetStmt(t.pos(), name, new Expr.LiteralExpr(this.peek(-1).pos(), null));
 
     if (this.match(TokenType.Equal))
       value = this.expr();
@@ -143,6 +150,7 @@ public class Parser {
     return new Stmt.LetStmt(t.pos(), name, value);
   }
 
+  // loop [i in iterator] { block }
   private Stmt loopStmt(Token t) throws Exception {
     Token variable = null;
     Expr iterable = null;
@@ -158,6 +166,7 @@ public class Parser {
     return new Stmt.LoopStmt(t.pos(), variable, iterable, block);
   }
 
+  // return [value]
   private Stmt returnStmt(Token t) throws Exception {
     Expr value = null;
 
@@ -168,6 +177,7 @@ public class Parser {
     return new Stmt.ReturnStmt(t.pos(), value);
   }
 
+  // while condition { block }
   private Stmt whileStmt(Token t) throws Exception {
     Expr condition = this.expr();
     Stmt.BlockStmt block = new Stmt.BlockStmt(this.peek(0).pos(), this.block());
@@ -175,6 +185,7 @@ public class Parser {
     return new Stmt.WhileStmt(t.pos(), condition, block);
   }
 
+  // expr
   private Stmt exprStmt(Token t) throws Exception {
     Expr expr = this.expr();
 

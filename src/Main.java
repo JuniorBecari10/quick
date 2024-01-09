@@ -5,10 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Main {
-  public static final String VERSION = "1.0";
+  public static final String VERSION = "1.1";
 
   public static void main(String[] args) {
-    if (args.length < 1) {
+    if (args.length == 0) {
+      Repl.repl();
+      return;
+    }
+
+    if (args.length > 2) {
       System.out.println("Usage: quick <file> [args] | (-v | --version)");
       return;
     }
@@ -28,10 +33,10 @@ public class Main {
       List<Token> tokens = new Lexer(Files.readString(f.toPath())).lex();
       List<Stmt> stmts = new Parser(tokens).parse();
 
-      new Interpreter(stmts).interpret();
+      new Interpreter().interpret(stmts, false);
     }
     catch (IOException ee) {
-      System.out.println("File ");
+      System.out.println("File '" + args[0] + "' doesn't exist");
     }
     catch (Exception e) {
       return;

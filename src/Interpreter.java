@@ -9,12 +9,10 @@ import java.util.List;
 public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Object> {
   public final Environment globals = new Environment();
   private Environment environment = globals;
-  
-  private List<Stmt> statements;
 
-  public Interpreter(List<Stmt> statements) {
-    this.statements = statements;
+  private boolean isRepl = false;
 
+  public Interpreter() {
     // -- Prelude --
 
     globals.define("clock", new Callable() {
@@ -119,6 +117,42 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public String toString() { return "<native fn>"; }
     });
 
+    globals.define("workingDir", new Callable() {
+      public int arity() { return 0; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        return System.getProperty("user.dir");
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("getProperty", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (!(args.get(0) instanceof String))
+          return null;
+
+        return System.getProperty((String) args.get(0));
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("setProperty", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (!(args.get(0) instanceof String && args.get(1) instanceof String))
+          return null;
+
+        return System.setProperty((String) args.get(0), (String) args.get(1));
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
     // -- Types --
 
     globals.define("isInt", new Callable() {
@@ -206,6 +240,25 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public Object call(Interpreter interpreter, List<Object> args) {
         if (args.get(0) instanceof Function) return true;
         return false;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("typeOf", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof Double) return "num";
+        if (args.get(0) instanceof String) return "str";
+        if (args.get(0) instanceof Boolean) return "bool";
+        if (args.get(0) instanceof Array) return "array";
+        if (args.get(0) instanceof Range) return "range";
+        if (args.get(0) instanceof Ref) return "ref";
+        if (args.get(0) instanceof Function) return "fn";
+        if (args.get(0) == null) return "nil";
+
+        return null;
       }
 
       public String toString() { return "<native fn>"; }
@@ -908,8 +961,10 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     });
   }
 
-  public void interpret() throws Exception {
-    for (Stmt stmt : this.statements) {
+  public void interpret(List<Stmt> statements, boolean isRepl) throws Exception {
+    this.isRepl = isRepl;
+
+    for (Stmt stmt : statements) {
       try {
         this.execute(stmt);
       }
@@ -1013,6 +1068,11 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
   @Override
   public Void visitExprStmt(Stmt.ExprStmt stmt) throws Exception {
+    if (this.isRepl) {
+      System.out.println("< " + Util.stringify(this.evaluate(stmt.expr)));
+      return null;
+    }
+
     this.evaluate(stmt.expr);
     return null;
   }
@@ -1040,7 +1100,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   public Void visitLetStmt(Stmt.LetStmt stmt) throws Exception {
     Object value = this.evaluate(stmt.value);
 
-    if (this.environment.containsVariable(stmt.name.lexeme()))
+    if (this.environment.containsVariable(stmt.name.lexeme()) && !this.isRepl)
       Util.printError("Cannot redeclare or shadow variable '" + stmt.name.lexeme() + "'", stmt.name.pos());
 
     this.environment.define(stmt.name.lexeme(), value);

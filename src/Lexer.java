@@ -70,6 +70,8 @@ public class Lexer {
       case '+':
         if (this.match('='))
           this.addToken(TokenType.PlusEqual);
+        else if (this.match('+'))
+          this.addToken(TokenType.DoublePlus);
         else
           this.addToken(TokenType.Plus);
         break;
@@ -79,6 +81,8 @@ public class Lexer {
           this.addToken(TokenType.Arrow);
         else if (this.match('='))
           this.addToken(TokenType.MinusEqual);
+        else if (this.match('-'))
+          this.addToken(TokenType.DoubleMinus);
         else
           this.addToken(TokenType.Minus);
         break;

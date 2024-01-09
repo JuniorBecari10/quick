@@ -8,14 +8,14 @@ public class Util {
   
   public static class Return extends Exception {
     public Object value;
-
+    
     public Return(Object value) {
       this.value = value;
     }
   }
-
+  
   public static String[] args;
-
+  
   public static <T> Optional<T> supressException(Supplier<T> supplier) {
     try {
       T value = supplier.get();
@@ -25,10 +25,10 @@ public class Util {
       return Optional.empty();
     }
   }
-
+  
   public static String stringify(Object obj) {
     if (obj == null) return "nil";
-
+    
     if (obj instanceof Double) {
       try {
         return numToStr((double) obj);
@@ -37,19 +37,27 @@ public class Util {
         return obj.toString();
       }
     }
-
+    
     return obj.toString();
   }
-
+  
   public static String numToStr(double num) {
     DecimalFormat f = new DecimalFormat("#.##");
     f.setDecimalSeparatorAlwaysShown(false);
-
+    
     return f.format(num).replace(",", ".");
   }
-
+  
   public static void printError(String message, Position pos) throws Exception {
     System.out.printf("Error in %d:%d | %s\n", pos.line + 1, pos.col + 1, message);
     throw new Exception();
+  }
+  
+  public static void clearScreen() {
+    final String ANSI_CLS = "\u001b[2J";
+    final String ANSI_HOME = "\u001b[H";
+    
+    System.out.print(ANSI_CLS + ANSI_HOME);
+    System.out.flush();
   }
 }
