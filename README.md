@@ -8,9 +8,38 @@ This is a personal project made just to practice the creation of a programming l
 
 The project was made in Java, following the proposed model inside the [Crafting Interpreters](https://craftinginterpreters.com/) book, with some modifications.
 
+## REPL
+
+Quick has a Read-Parse-Print-Loop feature, which can be activated by not providing any arguments to the executable.
+
+This is how it looks:
+```
+Quick REPL - v<version>
+
+Type 'exit' to exit
+Type 'help' for help
+
+>
+```
+The REPL can be used to write Quick code without creating any files.
+
+It has some exclusive rules:
+
+- You can redeclare variables;
+- Any expression statement evaluated value is printed in the stdout (i.e. if you type `1 + 1`, the interpreter will evaluate the expression and print `2`).
+
+It has some commands too, here's the list of them:
+```
+'exit'  - Exits the REPL
+'cls'   - Clears the screen
+'reset' - Resets the current environment and clears all declared variables
+```
+You can also insert a `\` before a command to interpret it as Quick code (e.g. `\exit`).
+
 ## How to Use
 
-The language is very simple and straightforward as the book's one, so it's not very hard to learn. <br>
+The language is very simple and straightforward, so it's not very hard to learn.
+
 Here's the basic syntax:
 
 ### Hello World
@@ -27,6 +56,19 @@ The variable declaration is made with the `let` keyword:
 let x = 10
 let y = "Hello!"
 ```
+
+You can lazily evaluate them as well, by not specifying any value:
+```js
+let x
+```
+In this case, the value of the variable will be `nil`. <br>
+So, these statements are semantically equivalent:
+```js
+let x
+let x = nil
+```
+
+All variables in Quick are mutable.
 
 ### Data Types
 
@@ -54,6 +96,16 @@ println(*ref) // 20
 println(x)    // 20
 ```
 
+```rs
+fn increment(x) {
+  *x = *x + 1
+}
+
+let x = 10
+increment(&x)
+println(x) // 11
+```
+
 ### Conditions
 
 Conditions can be expressed by the `if` and `else` keywords.
@@ -61,19 +113,13 @@ Conditions can be expressed by the `if` and `else` keywords.
 ```rs
 let x = 10
 
-if x == 10 -> println("x is 10!")
-else -> println("x is not 10")
-```
+if x == 10 {
+  println("x is 10!")
+}
 
-The statement can be split into two lines:
-
-```rs
-let x = 10
-
-if x == 10
-  -> println("x is 10!")
-else
-  -> println("x is not 10")
+else {
+  println("x is not 10")
+}
 ```
 
 #### Ternary Operator
@@ -100,6 +146,25 @@ Quick has an unique and clean way to express a code block that contains only one
 
 This operator is handy when you want to put only one statement inside a code block, but without the verbosity of the curly braces.
 
+Example:
+```rs
+let x = 10
+
+if x == 10 -> println("x is 10!")
+else -> println("x is not 10")
+```
+
+The statement can be split into two lines:
+
+```rs
+let x = 10
+
+if x == 10
+  -> println("x is 10!")
+else
+  -> println("x is not 10")
+```
+
 Remind that everywhere the syntax requires a code block, both ways can be used.
 
 ### Loops
@@ -123,6 +188,7 @@ loop i in array {
   println(i)
 }
 ```
+
 ```rs
 loop i in 1..10 {
   println(i)
@@ -161,7 +227,7 @@ fn add(x, y) {
 ```
 
 ```rs
-let add = fn(x, y) {
+let add = fn (x, y) {
   return x + y
 }
 ```
@@ -183,24 +249,4 @@ fn add(x, y):
 ```rs
 let add = fn(x, y):
   x + y
-```
-
-### Including Files
-
-Quick has the C-way to include files: just paste the other file's AST into the main one's. <br>
-Importing is made with the `incl` keyword, followed by the file's name, without the extension.
-
-main.qk
-```js
-incl math
-
-let res = add(2, 3)
-println(res) // 5
-```
-
-math.qk
-```rs
-fn add(x, y) {
-  return x + y
-}
 ```
