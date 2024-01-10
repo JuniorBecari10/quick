@@ -8,9 +8,37 @@ This is a personal project made just to practice the creation of a programming l
 
 The project was made in Java, following the proposed model inside the [Crafting Interpreters](https://craftinginterpreters.com/) book, with some modifications.
 
+You need at least Java 21 to run the interpreter.
+
+## Compiling
+
+If you want to compile the interpreter yourself, you need to install:
+
+- Java 21 or greater
+- Make _(optional)_
+- Jar _(optional)_
+
+_The interpreter doesn't have any external dependencies._
+
+There's a _Makefile_ in the root directory. To compile, run the `make compile` (or `cd src && javac -d ../bin Main.java`) command in the command line.
+
+You can create a Jar file as well. To do it, just run `make jar` (or `cd bin && jar cfm ../build/quick.jar ../MANIFEST.MF *`)
+
+## CLI Arguments
+
+There are some options to run the interpreter.
+```
+Usage: quick <file> [args] | (-v | --version)
+```
+If you run the interpreter without arguments, the REPL will be activated;
+
+You can provide a Quick source file and the arguments for that program (the arguments are optional);
+
+You can also check the intepreter's version, with the `-v` and `--version` flags.
+
 ## REPL
 
-Quick has a Read-Evaluate-Print-Loop feature, which can be activated by not providing any arguments to the executable.
+Quick has a _Read-Evaluate-Print-Loop_ feature, which can be activated by not providing any arguments to the executable.
 
 This is how it looks:
 ```

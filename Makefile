@@ -1,5 +1,3 @@
-ARGS = ../a.qk
-
 all: compile run
 
 compile:
@@ -8,7 +6,7 @@ compile:
 
 run:
 	cd bin && \
-	java Main $(ARGS)
+	java Main
 
 jar:
 	cd bin && \
