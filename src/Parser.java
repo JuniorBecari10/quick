@@ -238,7 +238,7 @@ public class Parser {
    * 4 - Comparison
    * 5 - In
    * 6 - Range
-   * 7 - Bitwise Shift
+   * 7 - Bit Shift
    * 8 - Add, Sub
    * 9 - Mul, Div, Mod
    * 10 - Postfix
@@ -275,20 +275,20 @@ public class Parser {
   private Expr assignment(int precedence) throws Exception {
     Expr expr = this.parseExpr(precedence + 1);
 
-    if (this.match(TokenType.Equal, TokenType.PlusEqual, TokenType.MinusEqual, TokenType.StarEqual, TokenType.SlashEqual, TokenType.ModuloEqual)) {
+    if (this.match(TokenType.Equal, TokenType.PlusEqual, TokenType.MinusEqual, TokenType.StarEqual, TokenType.SlashEqual, TokenType.ModuloEqual, TokenType.LShiftEqual, TokenType.RShiftEqual)) {
       Token operator = this.peek(-1);
       Expr right = this.assignment(precedence); // this is because assignment is right-associative
 
-      if (expr instanceof Expr.VariableExpr) {
-        Token name = ((Expr.VariableExpr) expr).name;
+      if (expr instanceof Expr.IdentifierExpr) {
+        Token name = ((Expr.IdentifierExpr) expr).name;
         return new Expr.AssignExpr(expr.pos, name, operator, expr, right, false);
       }
       
       else if (expr instanceof Expr.UnaryExpr) {
         Expr.UnaryExpr unary = (Expr.UnaryExpr) expr;
 
-        if (unary.operator.type() == TokenType.Star && unary.operand instanceof Expr.VariableExpr) {
-          Token name = ((Expr.VariableExpr) unary.operand).name;
+        if (unary.operator.type() == TokenType.Star && unary.operand instanceof Expr.IdentifierExpr) {
+          Token name = ((Expr.IdentifierExpr) unary.operand).name;
           return new Expr.AssignExpr(expr.pos, name, operator, expr, right, true);
         }
       }
@@ -296,8 +296,8 @@ public class Parser {
       else if (expr instanceof Expr.IndexExpr) {
         Expr.IndexExpr index = (Expr.IndexExpr) expr;
 
-        if (index.array instanceof Expr.VariableExpr) {
-          Token name = ((Expr.VariableExpr) index.array).name;
+        if (index.array instanceof Expr.IdentifierExpr) {
+          Token name = ((Expr.IdentifierExpr) index.array).name;
           return new Expr.AssignIndexExpr(expr.pos, name, operator, index.index, expr, right);
         }
       }
@@ -326,7 +326,7 @@ public class Parser {
       Token operator = this.peek(-1);
       Expr right = this.prefix(precedence, operators); // always will be unary, since the precedence is the same
       
-      if ((operator.type() == TokenType.Ampersand || operator.type() == TokenType.Star) && !(right instanceof Expr.VariableExpr))
+      if ((operator.type() == TokenType.Ampersand || operator.type() == TokenType.Star) && !(right instanceof Expr.IdentifierExpr))
         Util.printError("Can only reference or dereference identifiers", operator.pos());
 
       return new Expr.UnaryExpr(operator.pos(), operator, right);
@@ -411,7 +411,7 @@ public class Parser {
 
     if (this.match(TokenType.Number, TokenType.String)) return new Expr.LiteralExpr(pos, this.peek(-1).literal());
     if (this.match(TokenType.Identifier))
-      return new Expr.VariableExpr(pos, this.peek(-1));
+      return new Expr.IdentifierExpr(pos, this.peek(-1));
 
     // if cond: thenBranch else: elseBranch
     if (this.match(TokenType.IfKw)) {

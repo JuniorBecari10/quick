@@ -168,6 +168,19 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public String toString() { return "<native fn>"; }
     });
 
+    globals.define("isFloat", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (!(args.get(0) instanceof Double)) return false;
+
+        Double d = (Double) args.get(0);
+        return d.intValue() != d;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
     globals.define("isNum", new Callable() {
       public int arity() { return 1; }
 
@@ -1060,6 +1073,32 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return (double) left % (double) right;
   }
 
+  private Object lShift(Token operator, Object left, Object right, Expr leftExpr) throws Exception {
+    checkNumberOperands(operator, left, right);
+
+    int leftInt = ((Double) left).intValue();
+    int rightInt = ((Double) right).intValue();
+
+    if ((double) leftInt != (double) left || (double) rightInt != (double) right) {
+      Util.printError("Can only bit shift integers | values: left: " + Util.stringify(left) + ", right: " + Util.stringify(right), leftExpr.pos);
+    }
+
+    return (double) (leftInt << rightInt);
+  }
+
+  private Object rShift(Token operator, Object left, Object right, Expr leftExpr) throws Exception {
+    checkNumberOperands(operator, left, right);
+
+    int leftInt = ((Double) left).intValue();
+    int rightInt = ((Double) right).intValue();
+
+    if ((double) leftInt != (double) left || (double) rightInt != (double) right) {
+      Util.printError("Can only bit shift integers | values: left: " + Util.stringify(left) + ", right: " + Util.stringify(right), leftExpr.pos);
+    }
+
+    return (double) (leftInt >> rightInt);
+  }
+
   private Object and(Object left, Object right) throws Exception {
     return this.isTruthy(left) && this.isTruthy(right);
   }
@@ -1264,11 +1303,14 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     Object value = this.evaluate(expr.value);
 
     switch (expr.operator.type()) {
-      case PlusEqual -> value = this.plus(expr.operator, this.evaluate(expr.expr), value);
-      case MinusEqual -> value = this.minus(expr.operator, this.evaluate(expr.expr), value);
-      case StarEqual -> value = this.times(expr.operator, this.evaluate(expr.expr), value);
-      case SlashEqual -> value = this.divide(expr.operator, this.evaluate(expr.expr), value, expr.expr);
-      case ModuloEqual -> value = this.modulo(expr.operator, this.evaluate(expr.expr), value);
+      case PlusEqual -> value = this.plus(expr.operator, this.evaluate(expr.lValue), value);
+      case MinusEqual -> value = this.minus(expr.operator, this.evaluate(expr.lValue), value);
+      case StarEqual -> value = this.times(expr.operator, this.evaluate(expr.lValue), value);
+      case SlashEqual -> value = this.divide(expr.operator, this.evaluate(expr.lValue), value, expr.lValue);
+      case ModuloEqual -> value = this.modulo(expr.operator, this.evaluate(expr.lValue), value);
+
+      case LShiftEqual -> value = this.lShift(expr.operator, this.evaluate(expr.lValue), value, expr.lValue);
+      case RShiftEqual -> value = this.rShift(expr.operator, this.evaluate(expr.lValue), value, expr.lValue);
 
       default -> {} // TODO! assign the result of postfix to the variable
     }
@@ -1356,7 +1398,11 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       case Modulo:
         return this.modulo(expr.operator, left, right);
 
-      // TODO! add bitwise shift
+      case LShift:
+        return this.lShift(expr.operator, left, right, expr.left);
+
+      case RShift:
+        return this.rShift(expr.operator, left, right, expr.left);
 
       // ---
 
@@ -1478,7 +1524,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         return -(double) operand;
       
       case Ampersand:
-        return new Ref(((Expr.VariableExpr) expr.operand).name, this.environment);
+        return new Ref(((Expr.IdentifierExpr) expr.operand).name, this.environment);
       
       case Star:
         if (!(operand instanceof Ref))
@@ -1488,10 +1534,13 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         return r.env.get(r.name);
       
       case DoublePlus:
+        Util.printError("Not yet supported!", expr.operator.pos());
+
         Object res = this.plus(expr.operator, operand, 1.0);
         return res;
 
       case DoubleMinus:
+        Util.printError("Not yet supported!", expr.operator.pos());
         return this.minus(expr.operator, operand, 1.0);
 
       default:
@@ -1501,7 +1550,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   }
 
   @Override
-  public Object visitVariableExpr(Expr.VariableExpr expr) throws Exception {
+  public Object visitVariableExpr(Expr.IdentifierExpr expr) throws Exception {
     return this.environment.get(expr.name);
   }
 }

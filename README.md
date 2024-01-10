@@ -10,11 +10,11 @@ The project was made in Java, following the proposed model inside the [Crafting 
 
 ## REPL
 
-Quick has a Read-Parse-Print-Loop feature, which can be activated by not providing any arguments to the executable.
+Quick has a Read-Evaluate-Print-Loop feature, which can be activated by not providing any arguments to the executable.
 
 This is how it looks:
 ```
-Quick REPL - v<version>
+Quick REPL - v1.1
 
 Type 'exit' to exit
 Type 'help' for help
@@ -26,7 +26,7 @@ The REPL can be used to write Quick code without creating any files.
 It has some exclusive rules:
 
 - You can redeclare variables;
-- Any expression statement evaluated value is printed in the stdout (i.e. if you type `1 + 1`, the interpreter will evaluate the expression and print `2`).
+- Any expression statement evaluated value is printed in the stdout (i.e. if you type `1 + 1`, the interpreter will evaluate the expression and then print `2`).
 
 It has some commands too, here's the list of them:
 ```
@@ -36,7 +36,7 @@ It has some commands too, here's the list of them:
 ```
 You can also insert a `\` before a command to interpret it as Quick code (e.g. `\exit`).
 
-## How to Use
+## Syntax
 
 The language is very simple and straightforward, so it's not very hard to learn.
 

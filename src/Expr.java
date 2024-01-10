@@ -14,7 +14,7 @@ public abstract class Expr {
     R visitRangeExpr(RangeExpr expr) throws Exception;
     R visitTernaryExpr(TernaryExpr expr) throws Exception;
     R visitUnaryExpr(UnaryExpr expr) throws Exception;
-    R visitVariableExpr(VariableExpr expr) throws Exception;
+    R visitVariableExpr(IdentifierExpr expr) throws Exception;
   }
 
   public final Position pos;
@@ -25,7 +25,6 @@ public abstract class Expr {
 
   public abstract <R> R accept(ExprVisitor<R> visitor) throws Exception;
 
-  // TODO! add arrays and range in parser, and add Iterable interface
   public static class ArrayExpr extends Expr {
     final List<Expr> items;
 
@@ -42,7 +41,7 @@ public abstract class Expr {
   public static class AssignExpr extends Expr {
     final Token name;
     final Token operator;
-    final Expr expr;
+    final Expr lValue;
     final Expr value;
     final boolean isRef;
 
@@ -51,7 +50,7 @@ public abstract class Expr {
 
       this.name = name;
       this.operator = operator;
-      this.expr = expr;
+      this.lValue = expr;
       this.value = value;
       this.isRef = isRef;
     }
@@ -239,10 +238,10 @@ public abstract class Expr {
     }
   }
 
-  public static class VariableExpr extends Expr {
+  public static class IdentifierExpr extends Expr {
     final Token name;
 
-    public VariableExpr(Position pos, Token name) {
+    public IdentifierExpr(Position pos, Token name) {
       super(pos);
 
       this.name = name;

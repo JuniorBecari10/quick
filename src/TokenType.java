@@ -17,6 +17,9 @@ public enum TokenType {
   SlashEqual,
   ModuloEqual,
 
+  LShiftEqual,
+  RShiftEqual,
+
   DoublePlus,
   DoubleMinus,
 

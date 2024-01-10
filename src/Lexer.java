@@ -176,8 +176,12 @@ public class Lexer {
       case '<':
         if (this.match('='))
           this.addToken(TokenType.LessEqual);
-        else if (this.match('<'))
-          this.addToken(TokenType.LShift);
+        else if (this.match('<')) {
+          if (this.match('='))
+            this.addToken(TokenType.LShiftEqual);
+          else
+            this.addToken(TokenType.LShift);
+        }
         else
           this.addToken(TokenType.Less);
         break;
@@ -185,8 +189,12 @@ public class Lexer {
       case '>':
         if (this.match('='))
           this.addToken(TokenType.GreaterEqual);
-        else if (this.match('>'))
-          this.addToken(TokenType.RShift);
+        else if (this.match('>')) {
+          if (this.match('='))
+            this.addToken(TokenType.RShiftEqual);
+          else
+            this.addToken(TokenType.RShift);
+        }
         else
           this.addToken(TokenType.Greater);
         break;
