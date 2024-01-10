@@ -1303,8 +1303,8 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     Object value = this.evaluate(expr.value);
 
     switch (expr.operator.type()) {
-      case PlusEqual -> value = this.plus(expr.operator, this.evaluate(expr.lValue), value);
-      case MinusEqual -> value = this.minus(expr.operator, this.evaluate(expr.lValue), value);
+      case PlusEqual, DoublePlus -> value = this.plus(expr.operator, this.evaluate(expr.lValue), value);
+      case MinusEqual, DoubleMinus -> value = this.minus(expr.operator, this.evaluate(expr.lValue), value);
       case StarEqual -> value = this.times(expr.operator, this.evaluate(expr.lValue), value);
       case SlashEqual -> value = this.divide(expr.operator, this.evaluate(expr.lValue), value, expr.lValue);
       case ModuloEqual -> value = this.modulo(expr.operator, this.evaluate(expr.lValue), value);
@@ -1312,7 +1312,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       case LShiftEqual -> value = this.lShift(expr.operator, this.evaluate(expr.lValue), value, expr.lValue);
       case RShiftEqual -> value = this.rShift(expr.operator, this.evaluate(expr.lValue), value, expr.lValue);
 
-      default -> {} // TODO! assign the result of postfix to the variable
+      default -> {}
     }
 
     if (expr.isRef) {
@@ -1532,16 +1532,6 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         
         Ref r = (Ref) operand;
         return r.env.get(r.name);
-      
-      case DoublePlus:
-        Util.printError("Not yet supported!", expr.operator.pos());
-
-        Object res = this.plus(expr.operator, operand, 1.0);
-        return res;
-
-      case DoubleMinus:
-        Util.printError("Not yet supported!", expr.operator.pos());
-        return this.minus(expr.operator, operand, 1.0);
 
       default:
         Util.printError("Invalid unary operator: '" + expr.operator.lexeme() + "'", expr.operator.pos());

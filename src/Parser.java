@@ -336,15 +336,39 @@ public class Parser {
   }
 
   private Expr postfix(int precedence, TokenType... operators) throws Exception {
-    Expr left = this.parseExpr(precedence + 1);
+    Expr expr = this.parseExpr(precedence + 1);
 
     if (this.match(operators)) {
       Token operator = this.peek(-1);
+      Expr right = new Expr.LiteralExpr(this.peek(-1).pos(), 1.0); // value '1' hardcoded
+
+      if (expr instanceof Expr.IdentifierExpr) {
+        Token name = ((Expr.IdentifierExpr) expr).name;
+        return new Expr.AssignExpr(expr.pos, name, operator, expr, right, false);
+      }
       
-      return new Expr.UnaryExpr(operator.pos(), operator, left);
+      else if (expr instanceof Expr.UnaryExpr) {
+        Expr.UnaryExpr unary = (Expr.UnaryExpr) expr;
+
+        if (unary.operator.type() == TokenType.Star && unary.operand instanceof Expr.IdentifierExpr) {
+          Token name = ((Expr.IdentifierExpr) unary.operand).name;
+          return new Expr.AssignExpr(expr.pos, name, operator, expr, right, true);
+        }
+      }
+
+      else if (expr instanceof Expr.IndexExpr) {
+        Expr.IndexExpr index = (Expr.IndexExpr) expr;
+
+        if (index.array instanceof Expr.IdentifierExpr) {
+          Token name = ((Expr.IdentifierExpr) index.array).name;
+          return new Expr.AssignIndexExpr(expr.pos, name, operator, index.index, expr, right);
+        }
+      }
+      
+      Util.printError("Invalid assignment target", expr.pos);
     }
 
-    return left;
+    return expr;
   }
 
   // talvez se a pessoa explicitamente colocar 1 de step lançar um warning falando que é desnecessário
