@@ -251,10 +251,14 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public int arity() { return 1; }
 
       public Object call(Interpreter interpreter, List<Object> args) {
-        if (!(args.get(0) instanceof String)) return null;
+        try {
+          if (!(args.get(0) instanceof String)) return null;
 
-        String s = (String) args.get(0);
-        return Double.valueOf(s);
+          String s = (String) args.get(0);
+          return Double.valueOf(s);
+        } catch (Exception e) {
+          return null;
+        }
       }
 
       public String toString() { return "<native fn>"; }
