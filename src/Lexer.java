@@ -55,7 +55,6 @@ public class Lexer {
       try {
         this.token();
       } catch (Exception e) {
-        e.printStackTrace();
         continue;
       }
     }
@@ -266,14 +265,18 @@ public class Lexer {
     this.addToken(TokenType.Number, this.lexeme(), num, this.startPos);
   }
 
-  private void string() {
-    while (this.peek(0) != '"') {
+  private void string() throws Exception {
+    while (!this.isAtEnd() && this.peek(0) != '"') {
       if (this.peek(0) == '\n') {
         this.currentPos.line++;
         this.currentPos.col = 0;
       }
 
       this.advance();
+    }
+
+    if (this.isAtEnd() && this.peek(-1) != '"') {
+      Util.printError("Unterminated string literal", this.startPos);
     }
 
     this.advance();

@@ -58,6 +58,88 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public String toString() { return "<native fn>"; }
     });
 
+    globals.define("inputNum", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        System.out.print(Util.stringify(args.get(0)));
+        String s = System.console().readLine();
+
+        try {
+          Double res = Double.valueOf(s);
+          return res;
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("inputNumPersistent", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        while (true) {
+          try {
+            System.out.print(Util.stringify(args.get(0)));
+
+            String s = System.console().readLine();
+            Double res = Double.valueOf(s);
+
+            return res;
+          }
+          catch (Exception e) {
+            continue;
+          }
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("inputInt", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        System.out.print(Util.stringify(args.get(0)));
+        String s = System.console().readLine();
+
+        try {
+          Integer res = Integer.valueOf(s);
+          return (double) res;
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("inputIntPersistent", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        while (true) {
+          try {
+            System.out.print(Util.stringify(args.get(0)));
+
+            String s = System.console().readLine();
+            Integer res = Integer.valueOf(s);
+
+            return (double) res;
+          }
+          catch (Exception e) {
+            continue;
+          }
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
     globals.define("panic", new Callable() {
       public int arity() { return 1; }
 
@@ -154,6 +236,49 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     });
 
     // -- Types --
+
+    globals.define("asStr", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        return Util.stringify(args.get(0));
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("asNum", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (!(args.get(0) instanceof String)) return null;
+
+        String s = (String) args.get(0);
+        return Double.valueOf(s);
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("toInt", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        if (args.get(0) instanceof String) {
+          String s = (String) args.get(0);
+          return (double) Double.valueOf(s).intValue();
+        }
+
+        if (args.get(0) instanceof Double) {
+          Double d = (Double) args.get(0);
+          return (double) d.intValue();
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
 
     globals.define("isInt", new Callable() {
       public int arity() { return 1; }
@@ -1127,28 +1252,6 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     if (left instanceof Double && right instanceof Double) return;
     Util.printError("Operands must be numbers | values: left: " + Util.stringify(left) + ", right: " + Util.stringify(right), operator.pos());
   }
-
-  /*
-  private Object lookUpVariable(Token name, Expr expr) throws Exception {
-    return this.environment.get(name);
-  }
-
-  private String stringify(Object object) {
-    if (object == null) return "nil";
-
-    if (object instanceof Double) {
-        String text = object.toString();
-        
-        if (text.endsWith(".0")) {
-            text = text.substring(0, text.length() - 2);
-        }
-        
-        return text;
-    }
-
-    return object.toString();
-  }
-  */
 
   // ---
 
