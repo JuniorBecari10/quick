@@ -1,6 +1,6 @@
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,15 +28,13 @@ public class Main {
     Util.args = Arrays.copyOfRange(args, 1, args.length);
 
     try {
-      File f = new File(args[0]);
-
-      List<Token> tokens = new Lexer(Files.readString(f.toPath())).lex();
+      List<Token> tokens = new Lexer(Files.readString(Paths.get(args[0]))).lex();
       List<Stmt> stmts = new Parser(tokens).parse();
 
       new Interpreter().interpret(stmts, false);
     }
     catch (IOException ee) {
-      System.out.println("File '" + args[0] + "' doesn't exist");
+      System.out.println("File '" + args[0] + "' doesn't exist in the '" + Paths.get("").toAbsolutePath().normalize().toString() + "' folder");
     }
     catch (Exception e) {
       return;
