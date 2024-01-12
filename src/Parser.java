@@ -331,8 +331,9 @@ public class Parser {
       Token operator = this.peek(-1);
       Expr right = this.prefix(precedence, operators); // always will be unary, since the precedence is the same
       
-      if ((operator.type() == TokenType.Ampersand || operator.type() == TokenType.Star) && !(right instanceof Expr.IdentifierExpr || right instanceof Expr.ArrayIndexExpr))
-        Util.printError("Can only reference or dereference identifiers or array indexes, got '" + this.peek(0).lexeme() + "'", operator.pos());
+      // TODO! accept array index too
+      if ((operator.type() == TokenType.Ampersand || operator.type() == TokenType.Star) && !(right instanceof Expr.IdentifierExpr/* || right instanceof Expr.ArrayIndexExpr*/))
+        Util.printError("Can only reference or dereference identifiers, got '" + this.peek(0).lexeme() + "'", operator.pos());
 
       return new Expr.UnaryExpr(operator.pos(), operator, right);
     }
