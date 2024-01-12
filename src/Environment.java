@@ -62,7 +62,7 @@ public class Environment {
     }
 
     if (this.enclosing != null) {
-      this.enclosing.assign(name, value);
+      this.enclosing.assignArray(name, index, value);
       return;
     }
 

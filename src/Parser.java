@@ -37,12 +37,12 @@ public class Parser {
       if (this.check(TokenType.LBrace)) return this.blockStmt(t);
       if (this.match(TokenType.BreakKw)) return this.breakStmt(t);
       if (this.match(TokenType.ContinueKw)) return this.continueStmt(t);
-      if (this.match(TokenType.FnKw)) return fnStmt(t);
-      if (this.match(TokenType.IfKw)) return ifStmt(t);
-      if (this.match(TokenType.LetKw)) return letStmt(t);
-      if (this.match(TokenType.LoopKw)) return loopStmt(t);
-      if (this.match(TokenType.ReturnKw)) return returnStmt(t);
-      if (this.match(TokenType.WhileKw)) return whileStmt(t);
+      if (this.match(TokenType.FnKw)) return this.fnStmt(t);
+      if (this.match(TokenType.IfKw)) return this.ifStmt(t);
+      if (this.match(TokenType.LetKw)) return this.letStmt(t);
+      if (this.match(TokenType.LoopKw)) return this.loopStmt(t);
+      if (this.match(TokenType.ReturnKw)) return this.returnStmt(t);
+      if (this.match(TokenType.WhileKw)) return this.whileStmt(t);
 
       return exprStmt(t);
     }
@@ -210,8 +210,13 @@ public class Parser {
     consume(TokenType.LBrace, "Expected '{' before block, got '" + this.peek(0).type() + "'");
     this.skipNewLines();
 
-    while (!this.check(TokenType.RBrace) && !this.isAtEnd(0))
+    while (!this.check(TokenType.RBrace) && !this.isAtEnd(0)) {
       statements.add(this.statement());
+
+      this.skipNewLines();
+      if (this.check(TokenType.RBrace) || this.isAtEnd(0))
+        break;
+    }
     
     this.skipNewLines();
     this.consume(TokenType.RBrace, "Expected '}' after block, got '" + this.peek(0).type() + "'");

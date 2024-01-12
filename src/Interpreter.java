@@ -1567,15 +1567,15 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     Object index = this.evaluate(expr.index);
 
     if (!(array instanceof Array))
-      Util.printError("Can only index arrays", expr.pos);
+      Util.printError("Can only index arrays, got '" + Util.stringify(array) + "'", expr.pos);
     
     if (!(index instanceof Double))
-      Util.printError("Arrays can only be indexed by integers", expr.pos);
+      Util.printError("Arrays can only be indexed by integers, got '" + Util.stringify(index) + "'", expr.pos);
 
     Double ind = (Double) index;
 
     if (ind.intValue() != ind)
-      Util.printError("Arrays can only be indexed by integers", expr.pos);
+      Util.printError("Arrays can only be indexed by integers, got '" + Util.stringify(index) + "'", expr.pos);
 
     Array a = (Array) array;
 
