@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Object> {
@@ -911,6 +912,42 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
     // -- Arrays --
 
+    globals.define("sort", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        if (args.get(0) instanceof Array) {
+          List<Double> copy = new ArrayList<>();
+
+          for (Object o : ((Array) args.get(0)).array) {
+            if (o instanceof Double) {
+              copy.add((Double) o);
+            }
+            else {
+              return null;
+            }
+          }
+
+          try {
+            Collections.sort(copy);
+            List<Object> out = new ArrayList<>();
+
+            for (Double d : copy) {
+              out.add(d);
+            }
+
+            return new Array(out);
+          } catch (Exception e) {
+            return null;
+          }
+        }
+
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
     globals.define("append", new Callable() {
       public int arity() { return 2; }
 
@@ -1304,13 +1341,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     return null;
   }
 
-  // for now, let's disable shadowing because of a bug with pointers
   @Override
   public Void visitLetStmt(Stmt.LetStmt stmt) throws Exception {
     Object value = this.evaluate(stmt.value);
 
     if (this.environment.containsVariable(stmt.name.lexeme()) && !this.isRepl)
-      Util.printError("Cannot redeclare or shadow variable '" + stmt.name.lexeme() + "'", stmt.name.pos());
+      Util.printError("Cannot redeclare '" + stmt.name.lexeme() + "' in the same scope", stmt.name.pos());
 
     this.environment.define(stmt.name.lexeme(), value);
 
@@ -1338,7 +1374,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     Object iterable = this.evaluate(stmt.iterable);
 
     if (!(iterable instanceof Iterable))
-      Util.printError("Can only iterate over iterable objects", stmt.pos);
+      Util.printError("Can only iterate over iterable objects (e.g. arrays and ranges), got '" + Util.stringify(iterable) + "'", stmt.pos);
 
     Iterable it = (Iterable) iterable;
 
@@ -1426,7 +1462,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       Object v = this.environment.get(expr.name);
 
       if (!(v instanceof Ref))
-        Util.printError("Can only dereference assign reference objects", expr.name.pos());
+        Util.printError("Can only dereference assign reference objects, got '" + Util.stringify(v) + "'", expr.name.pos());
       
       Ref r = (Ref) v;
       r.env.assign(r.name, value);
@@ -1443,12 +1479,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     Object index = this.evaluate(expr.index);
 
     if (!(index instanceof Double))
-      Util.printError("Arrays can only be indexed by integers", expr.pos);
+      Util.printError("Arrays can only be indexed by integers, got '" + Util.stringify(index) + "'", expr.pos);
     
     Double ind = (Double) index;
     
     if (ind.intValue() != ind)
-      Util.printError("Arrays can only be indexed by integers", expr.pos);
+      Util.printError("Arrays can only be indexed by integers, got '" + Util.stringify(index) + "'", expr.pos);
     
     this.environment.assignArray(expr.name, ind.intValue(), value);
     return value;
@@ -1515,7 +1551,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
 
       case InKw:
         if (!(right instanceof Array))
-          Util.printError("Right side of an 'in' expression must be an array", expr.left.pos);
+          Util.printError("Right side of an 'in' expression must be an array, got '" + Util.stringify(right) + "'", expr.left.pos);
         
         Array a = (Array) right;
 
@@ -1541,12 +1577,12 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       args.add(this.evaluate(arg));
     
     if (!(callee instanceof Callable))
-      Util.printError("Can only call functions", expr.callee.pos);
+      Util.printError("Can only call functions, got '" + Util.stringify(callee) + "'", expr.callee.pos);
 
     Callable function = (Callable) callee;
 
     if (args.size() != function.arity())
-      Util.printError("Expected " + function.arity() + " arguments, but got " + args.size() + " instead", expr.callee.pos);
+      Util.printError("Expected " + function.arity() + " arguments, got " + args.size(), expr.callee.pos);
 
     return function.call(this, args);
   }
@@ -1562,7 +1598,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   }
 
   @Override
-  public Object visitIndexExpr(Expr.IndexExpr expr) throws Exception {
+  public Object visitIndexExpr(Expr.ArrayIndexExpr expr) throws Exception {
     Object array = this.evaluate(expr.array);
     Object index = this.evaluate(expr.index);
 
@@ -1599,13 +1635,13 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
                     : this.evaluate(expr.step);
 
     if (!(start instanceof Double))
-      Util.printError("The start of the range must be a number", expr.pos);
+      Util.printError("The start of the range must be a number, got '" + Util.stringify(start) + "'", expr.pos);
     
     if (!(end instanceof Double))
-      Util.printError("The end of the range must be a number", expr.pos);
+      Util.printError("The end of the range must be a number, got '" + Util.stringify(end) + "'", expr.pos);
     
     if (!(step instanceof Double))
-      Util.printError("The step of the range must be a number: " + Util.stringify(step), expr.pos);
+      Util.printError("The step of the range must be a number, got '" + Util.stringify(step) + "'", expr.pos);
     
     return new Range((Double) start, (Double) end, (Double) step);
   }
@@ -1635,7 +1671,7 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       
       case Star:
         if (!(operand instanceof Ref))
-          Util.printError("Can only dereference reference objects", expr.operator.pos());
+          Util.printError("Can only dereference reference objects, got '" + Util.stringify(operand) + "'", expr.operator.pos());
         
         Ref r = (Ref) operand;
         return r.env.get(r.name);

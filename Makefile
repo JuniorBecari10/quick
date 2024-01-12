@@ -6,7 +6,7 @@ compile:
 
 run:
 	cd bin && \
-	java Main
+	java Main ../a.qk
 
 jar:
 	cd bin && \

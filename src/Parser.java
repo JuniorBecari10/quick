@@ -80,20 +80,20 @@ public class Parser {
 
   // fn name([params]) { body }
   private Stmt fnStmt(Token t) throws Exception {
-    Token name = this.consume(TokenType.Identifier, "Expected function name");
-    this.consume(TokenType.LParen, "Expected '(' after function name");
+    Token name = this.consume(TokenType.Identifier, "Expected function name, got '" + this.peek(0).lexeme() + "'");
+    this.consume(TokenType.LParen, "Expected '(' after function name, got '" + this.peek(0).lexeme() + "'");
 
     List<Token> parameters = new ArrayList<>();
 
     if (!this.check(TokenType.RParen)) {
       do {
         this.skipNewLines();
-        parameters.add(this.consume(TokenType.Identifier, "Expected parameter name"));
+        parameters.add(this.consume(TokenType.Identifier, "Expected parameter name, got '" + this.peek(0).lexeme() + "'"));
       }
       while (this.match(TokenType.Comma));
     }
 
-    this.consume(TokenType.RParen, "Expected ')' after parameter list");
+    this.consume(TokenType.RParen, "Expected ')' after parameter list, got '" + this.peek(0).lexeme() + "'");
     
     List<Stmt> body;
 
@@ -156,9 +156,9 @@ public class Parser {
     Expr iterable = null;
 
     if (!this.check(TokenType.LBrace)) {
-      variable = this.consume(TokenType.Identifier, "Iterator variable name must be an identifier");
+      variable = this.consume(TokenType.Identifier, "Iterator variable name must be an identifier, got '" + this.peek(0).lexeme() + "'");
 
-      this.consume(TokenType.InKw, "Expected 'in' keyword after iterator variable");
+      this.consume(TokenType.InKw, "Expected 'in' keyword after iterator variable, got '" + this.peek(0).lexeme() + "'");
       iterable = this.expr();
     }
 
@@ -298,8 +298,8 @@ public class Parser {
         }
       }
 
-      else if (expr instanceof Expr.IndexExpr) {
-        Expr.IndexExpr index = (Expr.IndexExpr) expr;
+      else if (expr instanceof Expr.ArrayIndexExpr) {
+        Expr.ArrayIndexExpr index = (Expr.ArrayIndexExpr) expr;
 
         if (index.array instanceof Expr.IdentifierExpr) {
           Token name = ((Expr.IdentifierExpr) index.array).name;
@@ -307,7 +307,7 @@ public class Parser {
         }
       }
       
-      Util.printError("Invalid assignment target", expr.pos);
+      Util.printError("Invalid assignment target: '" + this.peek(0).lexeme() + "'", expr.pos);
     }
 
     return expr;
@@ -331,8 +331,8 @@ public class Parser {
       Token operator = this.peek(-1);
       Expr right = this.prefix(precedence, operators); // always will be unary, since the precedence is the same
       
-      if ((operator.type() == TokenType.Ampersand || operator.type() == TokenType.Star) && !(right instanceof Expr.IdentifierExpr))
-        Util.printError("Can only reference or dereference identifiers", operator.pos());
+      if ((operator.type() == TokenType.Ampersand || operator.type() == TokenType.Star) && !(right instanceof Expr.IdentifierExpr || right instanceof Expr.ArrayIndexExpr))
+        Util.printError("Can only reference or dereference identifiers or array indexes, got '" + this.peek(0).lexeme() + "'", operator.pos());
 
       return new Expr.UnaryExpr(operator.pos(), operator, right);
     }
@@ -361,8 +361,8 @@ public class Parser {
         }
       }
 
-      else if (expr instanceof Expr.IndexExpr) {
-        Expr.IndexExpr index = (Expr.IndexExpr) expr;
+      else if (expr instanceof Expr.ArrayIndexExpr) {
+        Expr.ArrayIndexExpr index = (Expr.ArrayIndexExpr) expr;
 
         if (index.array instanceof Expr.IdentifierExpr) {
           Token name = ((Expr.IdentifierExpr) index.array).name;
@@ -370,7 +370,7 @@ public class Parser {
         }
       }
       
-      Util.printError("Invalid assignment target", expr.pos);
+      Util.printError("Invalid assignment target: '" + this.peek(0).lexeme() + "'", expr.pos);
     }
 
     return expr;
@@ -408,7 +408,7 @@ public class Parser {
           while (this.match(TokenType.Comma));
         }
 
-        this.consume(TokenType.RParen, "Expected ')' to finish function call");
+        this.consume(TokenType.RParen, "Expected ')' to finish function call, got '" + this.peek(0).lexeme() + "'");
         expr = new Expr.CallExpr(expr.pos, expr, args);
       }
       else
@@ -424,8 +424,8 @@ public class Parser {
     if (this.match(TokenType.LBracket)) {
       Expr index = this.expr();
 
-      this.consume(TokenType.RBracket, "Expected ']' after index");
-      expr = new Expr.IndexExpr(expr.pos, expr, index);
+      this.consume(TokenType.RBracket, "Expected ']' after index, got '" + this.peek(0).lexeme() + "'");
+      expr = new Expr.ArrayIndexExpr(expr.pos, expr, index);
     }
 
     return expr;
@@ -446,32 +446,32 @@ public class Parser {
     if (this.match(TokenType.IfKw)) {
       Expr condition = this.expr();
 
-      this.consume(TokenType.Colon, "Expected ':' after ternary condition");
+      this.consume(TokenType.Colon, "Expected ':' after ternary condition, got '" + this.peek(0).lexeme() + "'");
 
       Expr thenBranch = this.expr();
 
       this.skipNewLines();
-      this.consume(TokenType.ElseKw, "Ternary operators must have an 'else' clause");
-      this.consume(TokenType.Colon, "Expected ':' after 'else'");
+      this.consume(TokenType.ElseKw, "Ternary operators must have an 'else' clause, got '" + this.peek(0).lexeme() + "'");
+      this.consume(TokenType.Colon, "Expected ':' after 'else', got '" + this.peek(0).lexeme() + "'");
 
       Expr elseBranch = this.expr();
       return new Expr.TernaryExpr(pos, condition, thenBranch, elseBranch);
     }
 
     if (this.match(TokenType.FnKw)) {
-      this.consume(TokenType.LParen, "Expected '(' after 'fn'");
+      this.consume(TokenType.LParen, "Expected '(' after 'fn', got '" + this.peek(0).lexeme() + "'");
 
       List<Token> parameters = new ArrayList<>();
 
       if (!this.check(TokenType.RParen)) {
         do {
           this.skipNewLines();
-          parameters.add(this.consume(TokenType.Identifier, "Expected parameter name"));
+          parameters.add(this.consume(TokenType.Identifier, "Expected parameter name, got '" + this.peek(0).lexeme() + "'"));
         }
         while (this.match(TokenType.Comma));
       }
 
-      this.consume(TokenType.RParen, "Expected ')' after parameter list");
+      this.consume(TokenType.RParen, "Expected ')' after parameter list, got '" + this.peek(0).lexeme() + "'");
 
       List<Stmt> body;
 
@@ -499,14 +499,14 @@ public class Parser {
         while (this.match(TokenType.Comma));
       }
 
-      this.consume(TokenType.RBracket, "Expected ']' after array elements");
+      this.consume(TokenType.RBracket, "Expected ']' after array elements, got '" + this.peek(0).lexeme() + "'");
       return new Expr.ArrayExpr(pos, items);
     }
 
     if (this.match(TokenType.LParen)) {
       Expr expr = this.expr();
       
-      this.consume(TokenType.RParen, "Expected ')' after expression");
+      this.consume(TokenType.RParen, "Expected ')' after expression, got '" + this.peek(0).lexeme() + "'");
       return new Expr.GroupingExpr(pos, expr);
     }
 

@@ -276,7 +276,7 @@ public class Lexer {
     }
 
     if (this.isAtEnd() && this.peek(-1) != '"') {
-      Util.printError("Unterminated string literal", this.startPos);
+      Util.printError("Unterminated string literal: '" + new String(Arrays.copyOfRange(this.input, this.start + 1, this.current - 1)) + "'s", this.startPos);
     }
 
     this.advance();

@@ -18,9 +18,9 @@ public class Repl {
           case "help" -> {
             System.out.println("Quick REPL | Help\n");
 
-            System.out.println("'exit'  - Exits the REPL");
-            System.out.println("'cls'   - Clears the screen");
-            System.out.println("'reset' - Resets the current environment and clears all declared variables");
+            System.out.println(" 'exit'  - Exits the REPL");
+            System.out.println(" 'cls'   - Clears the screen");
+            System.out.println(" 'reset' - Resets the current environment and clears all declared variables");
 
             System.out.println("\nUse '\\' before a command to interpret it as Quick code");
             continue;

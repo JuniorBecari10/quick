@@ -8,38 +8,27 @@ public class Main {
   public static final String VERSION = "1.1";
 
   public static void main(String[] args) {
+    if (args.length == 0) {
+      Repl.repl();
+      return;
+    }
+
+    if (args.length > 2) {
+      System.out.println("Usage: quick <file> [args] | (-v | --version)");
+      return;
+    }
+
+    if (args[0].equals("-v") || args[0].equals("--version")) {
+      System.out.println("Quick v" + VERSION);
+      System.out.println("Made by JuniorBecari10.");
+
+      return;
+    }
+
+    Util.args = Arrays.copyOfRange(args, 1, args.length);
+
     try {
-      List<Token> tokens = new Lexer("""
-        fn bubbleSort(array) {
-          let numEl = len(array) - 1
-          let ordenado = false
-        
-          while !ordenado {
-            ordenado = true
-        
-            loop i in 0..numEl {
-              if array[i] > array[i + 1] {
-                let temp = array[i]
-                array[i] = array[i + 1]
-                array[i + 1] = temp
-        
-                ordenado = false
-              }
-            }
-          }
-        
-          return array
-        }
-        
-        fn swap(a, b) {
-          let temp = *a
-          *a = *b
-          *b = temp
-        }
-        
-        let array = [3, 6, 2, 7, 1, 4]
-        println(bubbleSort(array))
-          """).lex();
+      List<Token> tokens = new Lexer(Files.readString(Paths.get(args[0]))).lex();
       List<Stmt> stmts = new Parser(tokens).parse();
 
       new Interpreter().interpret(stmts, false);

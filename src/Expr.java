@@ -9,7 +9,7 @@ public abstract class Expr {
     R visitCallExpr(CallExpr expr) throws Exception;
     R visitFnExpr(FnExpr expr) throws Exception;
     R visitGroupingExpr(GroupingExpr expr) throws Exception;
-    R visitIndexExpr(IndexExpr expr) throws Exception;
+    R visitIndexExpr(ArrayIndexExpr expr) throws Exception;
     R visitLiteralExpr(LiteralExpr expr) throws Exception;
     R visitRangeExpr(RangeExpr expr) throws Exception;
     R visitTernaryExpr(TernaryExpr expr) throws Exception;
@@ -156,11 +156,11 @@ public abstract class Expr {
     }
   }
 
-  public static class IndexExpr extends Expr {
+  public static class ArrayIndexExpr extends Expr {
     final Expr array;
     final Expr index;
 
-    public IndexExpr(Position pos, Expr expr, Expr index) {
+    public ArrayIndexExpr(Position pos, Expr expr, Expr index) {
       super(pos);
 
       this.array = expr;
