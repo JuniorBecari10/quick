@@ -9,14 +9,24 @@ import java.util.List;
 
 public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Object> {
   public final Environment globals = new Environment();
-  private Environment environment = globals;
+  private Environment environment = new Environment(globals);
 
   private boolean isRepl = false;
 
   public Interpreter() {
     // -- Prelude --
 
-    globals.define("clock", new Callable() {
+    globals.define("timeMs", new Callable() {
+      public int arity() { return 0; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        return (double) System.currentTimeMillis();
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("timeSec", new Callable() {
       public int arity() { return 0; }
 
       public Object call(Interpreter interpreter, List<Object> args) {
@@ -1670,7 +1680,6 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       Util.printError("Cannot redeclare '" + stmt.name.lexeme() + "' in the same scope", stmt.name.pos());
 
     this.environment.define(stmt.name.lexeme(), value);
-
     return null;
   }
 
