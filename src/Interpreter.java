@@ -910,6 +910,60 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public String toString() { return "<native fn>"; }
     });
 
+    globals.define("arrayStrNoBracket", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          Array a = (Array) args.get(0);
+          String res = Util.stringify(a);
+
+          return res.substring(1, res.length() - 1);
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("arrayStrNoBracketNoComma", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          Array a = (Array) args.get(0);
+          String res = Util.stringify(a);
+
+          return res.substring(1, res.length() - 1).replace(", ", "");
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("arrayStrNoComma", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          Array a = (Array) args.get(0);
+          String res = Util.stringify(a);
+
+          return res.replace(", ", "");
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
     // -- Arrays --
 
     globals.define("sort", new Callable() {
@@ -1064,6 +1118,273 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
         }
 
         return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    // -- Strings --
+
+    globals.define("collectStr", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          StringBuilder b = new StringBuilder();
+          Array a = (Array) args.get(0);
+
+          for (Object o : a.array) {
+            b.append((String) o);
+          }
+
+          return b.toString();
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("startsWith", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          String start = (String) args.get(1);
+
+          return s.startsWith(start);
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("endsWith", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          String end = (String) args.get(1);
+
+          return s.endsWith(end);
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("contains", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          String substr = (String) args.get(1);
+
+          return s.contains(substr);
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("indexOf", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          String substr = (String) args.get(1);
+
+          return s.indexOf(substr);
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("lastIndexOf", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          String substr = (String) args.get(1);
+
+          return s.lastIndexOf(substr);
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("replace", new Callable() {
+      public int arity() { return 3; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+
+          String replaced = (String) args.get(1);
+          String replacer = (String) args.get(2);
+
+          return s.replace(replaced, replacer);
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("repeat", new Callable() {
+      public int arity() { return 2; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          Double times = (Double) args.get(1);
+
+          if (times.intValue() != times)
+            throw new Exception();
+
+          return s.repeat(times.intValue());
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("toLowerCase", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          return s.toLowerCase();
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("toUpperCase", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          return s.toUpperCase();
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("trim", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          return s.trim();
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("trimStart", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          return s.stripLeading();
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("trimEnd", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          return s.stripTrailing();
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isBlank", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          return s.isBlank();
+        }
+        catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("isEmpty", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) throws Exception {
+        try {
+          String s = (String) args.get(0);
+          return s.isEmpty();
+        }
+        catch (Exception e) {
+          return null;
+        }
       }
 
       public String toString() { return "<native fn>"; }
@@ -1445,6 +1766,10 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
   public Object visitAssignExpr(Expr.AssignExpr expr) throws Exception {
     Object value = this.evaluate(expr.value);
 
+    if (this.globals.containsVariable(expr.name.lexeme())) {
+      Util.printError("Cannot reassign native function '" + expr.name.lexeme() + "'", expr.name.pos());
+    }
+
     switch (expr.operator.type()) {
       case PlusEqual, DoublePlus -> value = this.plus(expr.operator, this.evaluate(expr.lValue), value);
       case MinusEqual, DoubleMinus -> value = this.minus(expr.operator, this.evaluate(expr.lValue), value);
@@ -1602,23 +1927,84 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
     Object array = this.evaluate(expr.array);
     Object index = this.evaluate(expr.index);
 
-    if (!(array instanceof Array))
-      Util.printError("Can only index arrays, got '" + Util.stringify(array) + "'", expr.pos);
+    if (!(array instanceof Array || array instanceof String))
+      Util.printError("Can only index arrays and strings, got '" + Util.stringify(array) + "'", expr.pos);
     
-    if (!(index instanceof Double))
-      Util.printError("Arrays can only be indexed by integers, got '" + Util.stringify(index) + "'", expr.pos);
+    if (!(index instanceof Double || index instanceof Range))
+      Util.printError("Arrays and strings can only be indexed by integers and ranges, got '" + Util.stringify(index) + "'", expr.pos);
 
-    Double ind = (Double) index;
+    if (array instanceof Array) {
+      Array a = (Array) array;
 
-    if (ind.intValue() != ind)
-      Util.printError("Arrays can only be indexed by integers, got '" + Util.stringify(index) + "'", expr.pos);
+      if (index instanceof Double) {
+        Double ind = (Double) index;
 
-    Array a = (Array) array;
+        if (ind.intValue() != ind)
+          Util.printError("Arrays can only be indexed by integers and ranges, got '" + Util.stringify(index) + "'", expr.pos);
 
-    if (ind < 0 || ind >= a.array.size())
-      Util.printError("Index out of bounds: index " + ind.intValue() + " is outside the bounds for an array of length " + a.array.size(), expr.pos);
-    
-    return a.array.get(ind.intValue());
+        if (ind < 0 || ind >= a.array.size())
+          Util.printError("Index out of bounds: index " + ind.intValue() + " is outside the bounds for an array of length " + a.array.size(), expr.pos);
+        
+        return a.array.get(ind.intValue());
+      }
+
+      if (index instanceof Range) {
+        Range range = (Range) index;
+
+        if (((Double) (range.start)).intValue() != range.start || ((Double) (range.end)).intValue() != range.end || ((Double) (range.step)).intValue() != range.step)
+          Util.printError("Range bounds and step must be integers, got '" + Util.stringify(index) + "'", expr.pos);
+
+        if (range.start < 0 || range.start >= a.array.size() || range.end < 0 || range.end >= a.array.size())
+          Util.printError("Index out of bounds: range " + Util.stringify(range) + " bound is outside the bounds for an array of length " + a.array.size(), expr.pos);
+
+        List<Object> res = new ArrayList<>();
+        while (range.hasNext()) {
+          res.add(a.array.get(((Double) range.next()).intValue()));
+        }
+
+        return new Array(res);
+      }
+    }
+    else if (array instanceof String) {
+      String s = (String) array;
+
+      if (index instanceof Double) {
+        Double ind = (Double) index;
+
+        if (ind.intValue() != ind)
+          Util.printError("Arrays can only be indexed by integers and ranges, got '" + Util.stringify(index) + "'", expr.pos);
+
+        if (ind < 0 || ind >= s.length())
+          Util.printError("Index out of bounds: index " + ind.intValue() + " is outside the bounds for an array of length " + s.length(), expr.pos);
+        
+        return new String(new char[] { s.charAt(ind.intValue()) });
+      }
+
+      if (index instanceof Range) {
+        Range range = (Range) index;
+
+        if (((Double) (range.start)).intValue() != range.start || ((Double) (range.end)).intValue() != range.end || ((Double) (range.step)).intValue() != range.step)
+          Util.printError("Range bounds and step must be integers, got '" + Util.stringify(index) + "'", expr.pos);
+
+        if (range.start < 0 || range.start >= s.length() || range.end < 0 || range.end >= s.length())
+          Util.printError("Index out of bounds: range " + Util.stringify(range) + " bound is outside the bounds for an array of length " + s.length(), expr.pos);
+
+        List<Object> res = new ArrayList<>();
+        while (range.hasNext()) {
+          res.add(new String(new char[] { s.charAt(((Double) range.next()).intValue()) }));
+        }
+
+        StringBuilder b = new StringBuilder();
+
+        for (Object o : res) {
+          b.append((String) o);
+        }
+
+        return b.toString();
+      }
+    }
+
+    return null;
    }
 
   @Override
