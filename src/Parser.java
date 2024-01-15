@@ -453,6 +453,12 @@ public class Parser {
 
       this.skipNewLines();
       this.consume(TokenType.ElseKw, "Ternary operators must have an 'else' clause, got '" + this.peek(0).lexeme() + "'");
+
+      if (this.check(TokenType.IfKw)) {
+        Expr elseBranch = this.primary();
+        return new Expr.TernaryExpr(pos, condition, thenBranch, elseBranch);
+      }
+      
       this.consume(TokenType.Colon, "Expected ':' after 'else', got '" + this.peek(0).lexeme() + "'");
 
       Expr elseBranch = this.expr();
@@ -490,6 +496,7 @@ public class Parser {
     }
 
     if (this.match(TokenType.LBracket)) {
+      this.skipNewLines();
       List<Expr> items = new ArrayList<>();
 
       if (!this.check(TokenType.RBracket)) {
@@ -500,6 +507,7 @@ public class Parser {
         while (this.match(TokenType.Comma));
       }
 
+      this.skipNewLines();
       this.consume(TokenType.RBracket, "Expected ']' after array elements, got '" + this.peek(0).lexeme() + "'");
       return new Expr.ArrayExpr(pos, items);
     }
@@ -560,6 +568,7 @@ public class Parser {
   private Token consumeNewLine() throws Exception {
     if (this.isAtEnd(0)) return null;
     if (this.check(TokenType.RBrace)) return this.peek(0);
+    
     return this.consume(TokenType.NewLine, "Expected new line after statement, got '" + this.peek(0).lexeme() + "'");
   }
 

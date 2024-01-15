@@ -58,6 +58,53 @@ public class Interpreter implements Stmt.StmtVisitor<Void>, Expr.ExprVisitor<Obj
       public String toString() { return "<native fn>"; }
     });
 
+    globals.define("printlnBlank", new Callable() {
+      public int arity() { return 0; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        System.out.println();
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("clearScreen", new Callable() {
+      public int arity() { return 0; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        Util.clearScreen();
+        return null;
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
+    globals.define("execute", new Callable() {
+      public int arity() { return 1; }
+
+      public Object call(Interpreter interpreter, List<Object> args) {
+        boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("win");
+        ProcessBuilder builder;
+
+        try {
+          if (isWindows)
+            builder = new ProcessBuilder("cmd", "/c", Util.stringify(args.get(0)));
+          else
+            builder = new ProcessBuilder("sh", "-c", Util.stringify(args.get(0)));
+
+          builder.inheritIO();
+          Process process = builder.start();
+          
+          return process.waitFor();
+        } catch (Exception e) {
+          return null;
+        }
+      }
+
+      public String toString() { return "<native fn>"; }
+    });
+
     globals.define("input", new Callable() {
       public int arity() { return 1; }
 
