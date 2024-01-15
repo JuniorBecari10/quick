@@ -4,7 +4,7 @@ An interpreted, dynamic-typed scripting language that was made in a few days.
 
 ## About
 
-This is a personal project made just to practice the creation of a programming language and (still) shouldn't be used in production, due to the bugs that still exist.
+This is a personal project made just to practice the creation of a programming language, with a simple tree-walk interpreter.
 
 The project was made in Java, following the proposed model inside the [Crafting Interpreters](https://craftinginterpreters.com/) book, with some modifications.
 
@@ -58,9 +58,9 @@ It has some exclusive rules:
 
 It has some commands too, here's the list of them:
 ```
-'exit'  - Exits the REPL
-'cls'   - Clears the screen
-'reset' - Resets the current environment and clears all declared variables
+'exit'        - Exits the REPL
+'cls' / clear - Clears the screen
+'reset'       - Resets the current environment, clearing all declared variables
 ```
 You can also insert a `\` before a command to interpret it as Quick code (e.g. `\exit`).
 
@@ -170,6 +170,25 @@ let y = if x == 10: "hello"
 
 #### Code Blocks
 
+Quick uses the `{}` syntax to express code blocks:
+```rs
+if true {
+  println("true!")
+}
+```
+
+When a block is created, a new scope is also created, and all variables created inside that scope are deleted when it ends.
+
+With this in mind, you can create standalone blocks, to manage the deletion of variables:
+```rs
+{
+  let x = 10
+  println(x) // 10
+} // 'x' is deleted here
+
+println(x) // Error | Variable 'x' doesn't exist in this or a parent scope
+```
+
 Quick has an unique and clean way to express a code block that contains only one statement, using the arrow (`->`) operator.
 
 This operator is handy when you want to put only one statement inside a code block, but without the verbosity of the curly braces.
@@ -193,7 +212,83 @@ else
   -> println("x is not 10")
 ```
 
+This way is also valid:
+
+```rs
+let x = 10
+
+if x == 10 ->
+  println("x is 10!")
+else ->
+  println("x is not 10")
+```
+
 Remind that everywhere the syntax requires a code block, both ways can be used.
+
+### Arrays
+
+Arrays in Quick are very simple. <br>
+They are declared using brackets (`[]`).
+
+```rs
+let array = [1, 2, 3, 4]
+```
+
+They can hold values of different types also.
+
+```rs
+let array = [1, true, "hello"]
+```
+
+Arrays can be indexed (more on Indexing) using numbers and ranges:
+```rs
+let array = [1, 2, 3, 4]
+println(array[0]) // 1
+println(array[0..2]) // [1, 2]
+```
+
+### Strings
+
+Strings are pieces of text.
+
+All string literals in Quick are raw strings (this means that `\n` isn't the newline character, it's literally the string `"\n"`).
+
+They can be indexed by numbers and ranges too:
+
+```rs
+let string = "hello"
+println(string[0]) // "h"
+println(string[0..2]) // "he"
+```
+
+#### Indexing
+
+In Quick, only strings and arrays support the indexing syntax. <br>
+Both support indexing by numbers and ranges.
+
+```rs
+let array = [1, 2, 3, 4]
+println(array[0]) // 1
+println(array[0..2]) // [1, 2]
+```
+
+```rs
+let string = "hello"
+println(string[0]) // "h"
+println(string[0..2]) // "he"
+```
+
+Ranges has the step feature, and you can use this while indexing too:
+
+```rs
+let array = [1, 2, 3, 4, 5, 6]
+println(array[0..5:2]) // [1, 3, 5]
+```
+
+```rs
+let string = "hello, brave new world!"
+println(string[0..20:2]) // "hlo rv e o"
+```
 
 ### Loops
 
@@ -223,6 +318,12 @@ loop i in 1..10 {
 }
 ```
 
+```rs
+loop i in 0..20:2 {
+  println(i)
+}
+```
+
 #### `while`
 `while` is used to keep repeating a block of code while a given condition is true.
 
@@ -237,7 +338,8 @@ while i < 10 {
 
 #### Range
 
-Range is a built-in type in Quick that allows you to iterate over a sequence of numbers. <br>
+Range is a built-in type in Quick that allows you to iterate over a sequence of numbers, and to index arrays and strings.
+
 This is the syntax:
 ```js
 start..end:step
@@ -246,15 +348,14 @@ The `:step` part can be omitted and if so, the default value is `1`.
 
 ### Functions
 
-A function in Quick can be defined by both a statement (that automatically binds it to a name), and by an expression.
+A function in Quick can be defined by both a statement (that automatically binds it to a name), and by an expression. <br>
+So, functions in Quick are first-class.
 
 ```rs
 fn add(x, y) {
   return x + y
 }
-```
 
-```rs
 let add = fn (x, y) {
   return x + y
 }
