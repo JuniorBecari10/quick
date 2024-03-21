@@ -14,7 +14,7 @@ public class Parser {
     List<Stmt> statements = new ArrayList<>();
 
     while (!this.isAtEnd(0)) {
-      Stmt stmt = this.statement();
+      Stmt stmt = this.statement(true);
 
       if (stmt != null)
         statements.add(stmt);
@@ -25,7 +25,7 @@ public class Parser {
 
   // ---
 
-  private Stmt statement() throws Exception {
+  private Stmt statement(boolean requireNewLine) throws Exception {
     try {
       this.skipNewLines();
 
@@ -35,16 +35,16 @@ public class Parser {
       Token t = this.peek(0);
 
       if (this.check(TokenType.LBrace)) return this.blockStmt(t);
-      if (this.match(TokenType.BreakKw)) return this.breakStmt(t);
-      if (this.match(TokenType.ContinueKw)) return this.continueStmt(t);
+      if (this.match(TokenType.BreakKw)) return this.breakStmt(t, requireNewLine);
+      if (this.match(TokenType.ContinueKw)) return this.continueStmt(t, requireNewLine);
       if (this.match(TokenType.FnKw)) return this.fnStmt(t);
       if (this.match(TokenType.IfKw)) return this.ifStmt(t);
-      if (this.match(TokenType.LetKw)) return this.letStmt(t);
+      if (this.match(TokenType.LetKw)) return this.letStmt(t, requireNewLine);
       if (this.match(TokenType.LoopKw)) return this.loopStmt(t);
-      if (this.match(TokenType.ReturnKw)) return this.returnStmt(t);
+      if (this.match(TokenType.ReturnKw)) return this.returnStmt(t, requireNewLine);
       if (this.match(TokenType.WhileKw)) return this.whileStmt(t);
 
-      return exprStmt(t);
+      return exprStmt(t, requireNewLine);
     }
     catch (Exception e) {
       this.synchronize();
@@ -58,23 +58,24 @@ public class Parser {
   private Stmt blockStmt(Token t) throws Exception {
     Stmt.BlockStmt stmt = new Stmt.BlockStmt(t.pos(), this.block());
 
-    this.consumeNewLine();
     return stmt;
   }
 
   // break
-  private Stmt breakStmt(Token t) throws Exception {
+  private Stmt breakStmt(Token t, boolean requireNewLine) throws Exception {
     Stmt.BreakStmt stmt = new Stmt.BreakStmt(t.pos());
 
-    this.consumeNewLine();
+    if (requireNewLine)
+      this.consumeNewLine();
     return stmt;
   }
 
   // continue
-  private Stmt continueStmt(Token t) throws Exception {
+  private Stmt continueStmt(Token t, boolean requireNewLine) throws Exception {
     Stmt.ContinueStmt stmt = new Stmt.ContinueStmt(t.pos());
 
-    this.consumeNewLine();
+    if (requireNewLine)
+      this.consumeNewLine();
     return stmt;
   }
 
@@ -134,7 +135,7 @@ public class Parser {
   }
 
   // let name [= value]
-  private Stmt letStmt(Token t) throws Exception {
+  private Stmt letStmt(Token t, boolean requireNewLine) throws Exception {
     Token name = this.consume(TokenType.Identifier, "Expected variable name after 'let', got '" + this.peek(0).lexeme() + "'");
     Expr value = null;
 
@@ -146,7 +147,8 @@ public class Parser {
     else
       Util.printError("Expected '=' after variable name, got '" + this.peek(0).lexeme() + "'", this.peek(0).pos());
     
-    this.consumeNewLine();
+    if (requireNewLine)
+      this.consumeNewLine();
     return new Stmt.LetStmt(t.pos(), name, value);
   }
 
@@ -167,13 +169,14 @@ public class Parser {
   }
 
   // return [value]
-  private Stmt returnStmt(Token t) throws Exception {
+  private Stmt returnStmt(Token t, boolean requireNewLine) throws Exception {
     Expr value = null;
 
     if (!this.check(TokenType.NewLine))
       value = this.expr();
 
-    this.consumeNewLine();
+    if (requireNewLine)
+      this.consumeNewLine();
     return new Stmt.ReturnStmt(t.pos(), value);
   }
 
@@ -186,10 +189,11 @@ public class Parser {
   }
 
   // expr
-  private Stmt exprStmt(Token t) throws Exception {
+  private Stmt exprStmt(Token t, boolean requireNewLine) throws Exception {
     Expr expr = this.expr();
 
-    this.consumeNewLine();
+    if (requireNewLine)
+      this.consumeNewLine();
     return new Stmt.ExprStmt(t.pos(), expr);
   }
 
@@ -202,7 +206,7 @@ public class Parser {
     if (this.match(TokenType.Arrow)) {
       this.skipNewLines();
 
-      statements.add(this.statement());
+      statements.add(this.statement(false));
       return statements;
     }
 
@@ -211,7 +215,7 @@ public class Parser {
     this.skipNewLines();
 
     while (!this.check(TokenType.RBrace) && !this.isAtEnd(0)) {
-      statements.add(this.statement());
+      statements.add(this.statement(true));
 
       this.skipNewLines();
       if (this.check(TokenType.RBrace) || this.isAtEnd(0))
